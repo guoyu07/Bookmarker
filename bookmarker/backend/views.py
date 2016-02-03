@@ -5,13 +5,14 @@ from rest_framework.response import Response
 from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerializer,
     SettingSerializer, TagSerializer, TagRelationSerializer, UserSerializer)
 
-from .permissions import IsAdminOrIsSelf, EntryOwnerCanEditPermission, SettingOwnerCanEditPermission
+from .permissions import (IsAdminOrIsSelf, EntryOwnerCanEditPermission, UserOwnerCanEditPermission,
+    SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.AllowAny, UserOwnerCanEditPermission)
 
     @detail_route(methods=['post'], permission_classes=[IsAdminOrIsSelf])
     def set_password(self, request, pk=None):
@@ -25,6 +26,19 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route()
+    def favorites(self, request, pk=None):
+        user = self.get_object()
+        favorites = Favorite.objects.filter(created_by=user, is_public=True)
+
+        page = self.paginate_queryset(favorites)
+        if page is not None:
+            serializer = FavoriteSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+
+        serializer = FavoriteSerializer(favorites, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
 class EntryViewSet(viewsets.ModelViewSet):
     queryset = Entry.objects.all().order_by('-created_at')
@@ -35,6 +49,7 @@ class EntryViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(viewsets.ModelViewSet):
     queryset = Favorite.objects.all().order_by('-created_at')
     serializer_class = FavoriteSerializer
+    permission_classes = (FavoriteOwnerCanEditPermission, permissions.IsAuthenticated)
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -43,13 +58,12 @@ class FavoriteViewSet(viewsets.ModelViewSet):
 class SettingViewSet(viewsets.ModelViewSet):
     queryset = Setting.objects.all()
     serializer_class = SettingSerializer
-    permission_classes = (SettingOwnerCanEditPermission, )
+    permission_classes = (SettingOwnerCanEditPermission, permissions.IsAuthenticated)
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = (permissions.AllowAny, )
 
 
 class TagRelationViewSet(viewsets.ModelViewSet):

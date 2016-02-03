@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from django.utils.deconstruct import deconstructible
@@ -121,7 +121,22 @@ class User(AbstractUser):
         verbose_name_plural = '用户'
 
 
-@receiver(pre_delete, sender=Entry)
-def my_handler(entry, **kwargs):
-    entry.belong.update(entries_num=F('entries_num') - 1)
+@receiver(post_save, sender=User)
+def user_post_save_handler(sender, instance, created, **kwargs):
+    if created is True:
+        Favorite.objects.create(created_by=instance)
+        Setting.objects.create(owner=instance)
+
+
+@receiver(post_save, sender=Entry)
+def entry_pre_save_handler(sender, instance, created, **kwargs):
+    if created is True:
+        instance.belong.entries_num += 1
+        instance.belong.save()
+
+
+@receiver(post_delete, sender=Entry)
+def entry_pre_del_handler(sender, instance, **kwargs):
+    instance.belong.entries_num -= 1
+    instance.belong.save()
 

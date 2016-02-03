@@ -13,20 +13,21 @@ class IsAdminOrIsSelf(SafeMethodsOnlyPermission):
     def has_object_permission(self, request, view, obj=None):
         return request.user.is_superuser or obj is None or request.user.id == obj.id
 
-
-class EntryOwnerCanEditPermission(SafeMethodsOnlyPermission):
+def owner_can_edit_permisson(clsname, obj_attr):
+    # for put method
     def has_object_permission(self, request, view, obj=None):
         if obj is None:
             can_edit = True
         else:
-            can_edit = request.user == obj.belong.created_by
-        return can_edit or super(EntryOwnerCanEditPermission, self).has_object_permission(request, view, obj)
+            check_list = obj_attr.split('.')
+            for attr in check_list:
+                obj = getattr(obj, attr)
+            can_edit = request.user == obj
+        return can_edit or super(type(self), self).has_object_permission(request, view, obj)
+    return type(clsname, (SafeMethodsOnlyPermission,), dict(has_object_permission=has_object_permission))
 
+UserOwnerCanEditPermission = owner_can_edit_permisson('UserOwnerCanEditPermission', 'id')
+FavoriteOwnerCanEditPermission = owner_can_edit_permisson('FavoriteOwnerCanEditPermission', 'created_by')
+EntryOwnerCanEditPermission = owner_can_edit_permisson('EntryOwnerCanEditPermission', 'belong.created_by')
+SettingOwnerCanEditPermission = owner_can_edit_permisson('SettingOwnerCanEditPermission', 'owner')
 
-class SettingOwnerCanEditPermission(SafeMethodsOnlyPermission):
-    def has_object_permission(self, request, view, obj=None):
-        if obj is None:
-            can_edit = True
-        else:
-            can_edit = request.user == obj.owner
-        return can_edit or super(SettingOwnerCanEditPermission, self).has_object_permission(request, view, obj)

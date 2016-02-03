@@ -7,9 +7,6 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
         model = Entry
         fields = ('url', 'title', 'thumbnail', 'created_at', 'belong')
 
-    # def create(self, validated_data):
-    #     entry = Entry.objects.create(**validated_data)
-
 
 class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
     entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
@@ -17,7 +14,7 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = ('name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')    
+        fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')    
 
 
 class SettingSerializer(serializers.HyperlinkedModelSerializer):
@@ -45,6 +42,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'avatar', 'email', 'password', 'setting', 'favorites')
+        extra_kwargs = {'password': {'write_only': True}}
+
 
     def validate_username(self, username):
         if not (2 <= len(username) <= 16):
@@ -55,8 +54,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user = User(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
-        Favorite.objects.create(created_by=user)
-        Setting.objects.create(owner=user)
         return user
 
 
