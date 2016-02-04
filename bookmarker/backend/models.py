@@ -52,7 +52,7 @@ class Favorite(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     is_public = models.BooleanField(verbose_name='是否公开', default=False)
-    entries_num = models.IntegerField(verbose_name='条目数量', default=0)
+    entries_num = models.IntegerField(verbose_name='书签数量', default=0)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='favorites',
                     on_delete=models.CASCADE, verbose_name='创建用户')
 
@@ -79,15 +79,18 @@ class Entry(models.Model):
     views = models.IntegerField(verbose_name='点击量', default=0)
     priority = models.CharField(max_length=8, verbose_name='优先级', choices=PRIORITIES, default='Medium')
     remarks = models.CharField(max_length=1024, verbose_name='备注', blank=True)
+    is_public = models.BooleanField(verbose_name='是否公开', default=False)
     belong = models.ForeignKey(Favorite, on_delete=models.CASCADE, related_name='entries',
-                     verbose_name='所属收藏夹', blank=True)
+                     verbose_name='所属收藏夹')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='entries',
+                     verbose_name='所属用户', blank=True, null=True)
 
     def __str__(self):
         return self.url
 
     class Meta:
-        verbose_name = '条目'
-        verbose_name_plural = '条目'
+        verbose_name = '书签'
+        verbose_name_plural = '书签'
 
 
 class Tag(models.Model):
@@ -102,12 +105,12 @@ class Tag(models.Model):
 
 
 class TagRelation(models.Model):
-    entry = models.ForeignKey(Entry, verbose_name='条目')
+    entry = models.ForeignKey(Entry, verbose_name='书签')
     tag = models.ForeignKey(Tag, verbose_name='标签')
 
     class Meta:
-        verbose_name = '条目标签'
-        verbose_name_plural = '条目标签'
+        verbose_name = '书签标签'
+        verbose_name_plural = '书签标签'
 
 
 class User(AbstractUser):
@@ -131,7 +134,10 @@ def user_post_save_handler(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Entry)
 def entry_pre_save_handler(sender, instance, created, **kwargs):
     if created is True:
+        instance.created_by = instance.belong.created_by
+        instance.is_public = instance.belong.is_public
         instance.belong.entries_num += 1
+        instance.save()
         instance.belong.save()
 
 

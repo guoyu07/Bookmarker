@@ -24,6 +24,7 @@ class SettingAdmin(admin.ModelAdmin):
 class EntryAdmin(admin.ModelAdmin):
     list_display = ('title', 'url', 'created_at', 'belong')
     ordering = ('created_at',)
+    exclude = ('is_public', 'created_by',)
 
 
 class TagAdmin(admin.ModelAdmin):

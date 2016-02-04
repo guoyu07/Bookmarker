@@ -2,19 +2,25 @@ from .models import User, Entry, Favorite, Setting, Tag, TagRelation
 from rest_framework import serializers
 
 
-class EntrySerializer(serializers.HyperlinkedModelSerializer):
+class EntrySerializer(serializers.ModelSerializer):
+    created_by = serializers.SlugRelatedField(read_only=True, slug_field='username')
+
     class Meta:
         model = Entry
-        fields = ('url', 'title', 'thumbnail', 'created_at', 'belong')
+        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'is_public', 'created_by')
+        extra_kwargs = {
+            'is_public': {'read_only': True},
+            'created_by': {'lookup_field': 'id'}
+        }
 
 
 class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
     entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
-    created_by = serializers.SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
         model = Favorite
         fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')    
+        extra_kwargs = {'entries_num': {'read_only': True}}
 
 
 class SettingSerializer(serializers.HyperlinkedModelSerializer):
@@ -37,7 +43,8 @@ class TagRelationSerializer(serializers.HyperlinkedModelSerializer):
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     setting = serializers.HyperlinkedIdentityField(read_only=True, view_name='setting-detail')
-    favorites = FavoriteSerializer(read_only=True, many=True)
+    favorites = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='favorite-detail')
+    # favorites = FavoriteSerializer(read_only=True, many=True)
 
     class Meta:
         model = User
