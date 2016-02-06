@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 .controller('AppCtrl', function($scope, $timeout) {
 
@@ -13,22 +13,27 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('LoginCtrl', function($scope, $stateParams) {
-})
+.controller('LoginCtrl', function($scope, $stateParams) {})
 
-.controller('MainCtrl', function($scope, $stateParams) {
-})
+.controller('MainCtrl', function($scope, $stateParams) {})
 
-.controller('ExploreCtrl', function($scope, $http, $stateParams) {
-  $scope.posts = [];
-  return $http.get('/api/favorites').then(function(result) {
-    return angular.forEach(result.data, function(item) {
-      return $scope.posts.push(item);
+.controller('ExploreCtrl', function($scope, Favorite) {
+    $scope.favorites = [];
+    Favorite.query().$promise.then(function(results) {
+      $scope.favorites = results;
     });
-  });
+    console.log($scope.favorites);
+
 })
 
-.controller('SettingCtrl', function($scope, $stateParams) {
-})
+.controller('BookmarkCtrl', function($scope, $stateParams) {})
+
+.controller('FavoriteCtrl', function($scope, $stateParams) {})
+
+.controller('SettingCtrl', function($scope, $stateParams) {})
+
+.controller('SearchCtrl', function($scope, $stateParams) {})
+
+.controller('AboutCtrl', function($scope, $stateParams) {})
 
 ;

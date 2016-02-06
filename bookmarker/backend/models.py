@@ -86,7 +86,7 @@ class Entry(models.Model):
                      verbose_name='所属用户', blank=True, null=True)
 
     def __str__(self):
-        return self.url
+        return "%s [%s]" %(self.url, self.created_by)
 
     class Meta:
         verbose_name = '书签'
