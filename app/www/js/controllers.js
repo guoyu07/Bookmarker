@@ -17,13 +17,12 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 .controller('MainCtrl', function($scope, $stateParams) {})
 
-.controller('ExploreCtrl', function($scope, Favorite) {
+.controller('ExploreCtrl', function($scope, Authentication,User, Favorite) {
     $scope.favorites = [];
-    Favorite.query().$promise.then(function(results) {
+    Authentication.login('tonnie', 'ivwswfnh');
+    Favorite.query(localStorage.getItem('bookmarker.token')).$promise.then(function(results) {
       $scope.favorites = results;
     });
-    console.log($scope.favorites);
-
 })
 
 .controller('BookmarkCtrl', function($scope, $stateParams) {})

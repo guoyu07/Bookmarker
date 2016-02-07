@@ -32,6 +32,7 @@ router.register(r'settings', views.SettingViewSet)
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

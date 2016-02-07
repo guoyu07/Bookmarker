@@ -22,6 +22,29 @@ angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
   });
 })
 
+.constant('API_URL', 'http://192.168.33.10/api')
+
+.config(function($resourceProvider) {
+  $resourceProvider.defaults.stripTrailingSlashes = false;
+})
+
+.config(['$httpProvider', function($httpProvider) {
+  $httpProvider.interceptors.push(function($window, $q) {
+    return {
+      'responseError': function(rejection) {
+        var defer = $q.defer();
+
+        if (rejection.status == 401) {
+          $window.location.href = '/#/app/login';
+        }
+        defer.reject(rejection);
+        return defer.promise;
+      }
+    };
+  });
+
+}])
+
 .config(function($stateProvider, $urlRouterProvider) {
 
   $stateProvider
