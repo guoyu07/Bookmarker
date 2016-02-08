@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user.save()
             return Response(make_status(True))
         else:
-            return Response(make_status(False, reson='格式错误'),
+            return Response(make_status(False, reason='格式错误'),
                             status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route()
@@ -65,7 +65,7 @@ class EntryViewSet(viewsets.ModelViewSet):
             if Favorite.objects.filter(created_by=request.user.id,
                 id=request.data['belong']).exists():
                 Entry.objects.create(**serializer.validated_data)
-                return Response(make_status(True))            
+                return Response(make_status(True))
             return Response(make_status(False, reason='拒绝访问'),
                                 status=status.HTTP_403_FORBIDDEN)
         else:
@@ -107,4 +107,3 @@ class TagViewSet(viewsets.ModelViewSet):
 class TagRelationViewSet(viewsets.ModelViewSet):
     queryset = TagRelation.objects.all()
     serializer_class = TagRelationSerializer
-

@@ -21,30 +21,31 @@ function make_resource(path) {
 angular.module('bookmarker.api', ['ngResource'])
 
 .factory('Authentication', [
-  '$http',
-  function($http, $state) {
+  '$http', '$state', 'authToken',
+  function($http, $state, authToken) {
     function login(username, password) {
-      return $http.post('http://192.168.33.10/api-token-auth/', {
+      return $http.post(authToken.getTokenAuthUrl(), {
         username: username,
         password: password
       }).then(loginSuccessFn, loginErrorFn);
 
       function loginSuccessFn(response, status, headers, config) {
-        localStorage.setItem('bookmarker.token', response.data.token);
-        // window.location = '#/app/main';
+        authToken.save(response.data.token);
+        $state.go('app.main');
       }
 
-      /**
-       * @name loginErrorFn
-       * @desc Log "Epic failure!" to the console
-       */
-      function loginErrorFn(data, status, headers, config) {
-        console.error('Epic failure!');
+      function loginErrorFn(response, status, headers, config) {
+        console.log(response.data);
       };
     }
 
+    function remember() {
+      authToken.refreshToken();
+    }
+
     return {
-      login: login
+      login: login,
+      remember: remember
     };
   }
 ])

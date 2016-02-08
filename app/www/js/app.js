@@ -4,9 +4,9 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
+angular.module('bookmarker', ['ionic', 'angular-jwt', 'bookmarker.controllers'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $rootScope, $state, Authentication, authToken, jwtHelper) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -20,7 +20,21 @@ angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
       StatusBar.styleDefault();
     }
   });
+
+  $rootScope.$on('$locationChangeSuccess', function(event, toState, toStateParams) {
+    var token = authToken.get();
+    if(jwtHelper.isTokenExpired(token)) {
+      $state.go('app.login');
+    } else {
+      if((jwtHelper.getTokenExpirationDate(token) - new Date())/1000 < 300) {
+        authToken.refreshToken();
+      }
+    }
+  });
+
 })
+
+.constant('API_HOST', 'http://192.168.33.10')
 
 .constant('API_URL', 'http://192.168.33.10/api')
 
@@ -28,14 +42,37 @@ angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
   $resourceProvider.defaults.stripTrailingSlashes = false;
 })
 
-.config(['$httpProvider', function($httpProvider) {
+.service('authToken', function($http, jwtHelper, API_HOST) {
+  return {
+    save: function(token) {
+      localStorage.setItem('bookmarker.token', token);
+    },
+    get: function() {
+      return localStorage.getItem('bookmarker.token');
+    },
+    getTokenAuthUrl: function() {
+      return API_HOST + '/api-token-auth/';
+    },
+    refreshToken: function() {
+      // bug
+      $http.post(API_HOST+ '/api-token-refresh/', {
+        token: localStorage.getItem('bookmarker.token')
+      }).success(function(response){
+        localStorage.setItem('bookmarker.token', response.token);
+      });
+    }
+
+  }
+})
+
+.config(['$httpProvider', function($httpProvider, $state) {
   $httpProvider.interceptors.push(function($window, $q) {
     return {
       'responseError': function(rejection) {
         var defer = $q.defer();
 
         if (rejection.status == 401) {
-          $window.location.href = '/#/app/login';
+          $state.go('app.login');
         }
         defer.reject(rejection);
         return defer.promise;
@@ -53,7 +90,7 @@ angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
     url: '/app',
     abstract: true,
     templateUrl: 'templates/menu.html',
-    controller: 'AppCtrl'
+    controller: 'AppCtrl',
   })
 
 
@@ -137,5 +174,5 @@ angular.module('bookmarker', ['ionic', 'bookmarker.controllers'])
     }
   });
   // if none of the above states are matched, use this as the fallback
-  $urlRouterProvider.otherwise('/app/login');
+  $urlRouterProvider.otherwise('/app/main');
 });

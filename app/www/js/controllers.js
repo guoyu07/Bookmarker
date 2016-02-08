@@ -13,16 +13,33 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('LoginCtrl', function($scope, $stateParams) {})
+.controller('LoginCtrl', function($scope, $stateParams, Authentication, User) {
+  $scope.login = function() {
+    username = $scope.username;
+    password = $scope.password;
+    Authentication.login(username, password);
+    if($scope.rememberMe) {
+      Authentication.remember();
+    }
+  }
+
+  $scope.register = function() {
+    var user = new User({
+      username: $scope.username,
+      password: $scope.password,
+    });
+    user.$save();
+  }
+
+})
 
 .controller('MainCtrl', function($scope, $stateParams) {})
 
-.controller('ExploreCtrl', function($scope, Authentication,User, Favorite) {
-    $scope.favorites = [];
-    Authentication.login('tonnie', 'ivwswfnh');
-    Favorite.query(localStorage.getItem('bookmarker.token')).$promise.then(function(results) {
-      $scope.favorites = results;
-    });
+.controller('ExploreCtrl', function($scope, Favorite, authToken) {
+  $scope.favorites = [];
+  Favorite.query(authToken.get()).$promise.then(function(results) {
+    $scope.favorites = results;
+  });
 })
 
 .controller('BookmarkCtrl', function($scope, $stateParams) {})
