@@ -7,7 +7,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'is_public', 'created_by')
+        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'is_public', 'created_by', 'remarks')
         extra_kwargs = {
             'is_public': {'read_only': True},
             'created_by': {'lookup_field': 'id'}
@@ -19,7 +19,7 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Favorite
-        fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')    
+        fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')
         extra_kwargs = {'entries_num': {'read_only': True}}
 
 
@@ -68,4 +68,3 @@ class PasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('password', )
-

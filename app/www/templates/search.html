@@ -1,17 +1,14 @@
 <div class="list">
-
-  <div class="item item-input-inset">
-    <label class="item-input-wrapper">
-      <input type="text" placeholder="输入要查找的书签信息...">
+  <div class="list list-inset">
+    <label class="item item-input">
+      <i class="icon ion-search placeholder-icon"></i>
+      <input type="text" placeholder="输入要查找的书签信息..." ng-model="query[queryBy]">
     </label>
-    <button class="button button-small button-positive">
-      搜索
-    </button>
   </div>
-  <a class="item item-thumbnail-left" href="#">
-    <img src="">
-    <h2>Pretty Hate Machine</h2>
-    <p>Nine Inch Nails</p>
-  </a>
 
+  <a class="item item-thumbnail-left" href="{{entry.url}}" target="_blank" ng-repeat="entry in $root.entries | filter:query">
+    <img ng-src="{{entry.url | favicon}}">
+    <h2>{{entry.title}}</h2>
+    <p>{{entry.remark}}</p>
+  </a>
 </div>

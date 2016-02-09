@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.controllers'])
 
-.run(function($ionicPlatform, $rootScope, $state, Authentication, authToken, jwtHelper) {
+.run(function($ionicPlatform, $rootScope, $state, Authentication, authToken) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -24,7 +24,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   $rootScope.$on('$locationChangeSuccess', function(event, toState, toStateParams) {
     if(authToken.isTokenExpired()) {
       $state.go('app.login');
+      $rootScope.user = {'username': '未登录'};
     } else {
+      $rootScope.user = authToken.getProfile();
       if(authToken.isRemember()) {
         authToken.refreshToken();
       }
@@ -39,6 +41,14 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 .config(function($resourceProvider) {
   $resourceProvider.defaults.stripTrailingSlashes = false;
+})
+
+.value('chunk', function(arr, size) {
+    var newArr = [];
+    for (var i = 0; i < arr.length; i += size) {
+      newArr.push(arr.slice(i, i + size));
+    }
+    return newArr;
 })
 
 .service('UI', function($http, $window, $q, $ionicLoading, $timeout){
@@ -59,7 +69,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     $ionicLoading.show({
         template: msg,
         noBackdrop: true,
-        duration: (duration == 'short' ? 700 : 1500)
+        duration: (duration == 'long' ? 1500 : 700)
     });
 
 }})
@@ -74,6 +84,15 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     },
     get: function() {
       return localStorage.getItem(self.TOKEN_NAME);
+    },
+    getProfile: function() {
+      var profile = null;
+      try {
+        profile = jwtHelper.decodeToken(this.get())
+      } catch (e) {
+        return {'username': '未登录'}
+      }
+      return profile;
     },
     remove: function() {
       localStorage.removeItem(self.TOKEN_NAME);

@@ -1,15 +1,15 @@
 angular.module('bookmarker.controllers', ['bookmarker.api'])
 
-.controller('AppCtrl', function($scope, $timeout) {
+.filter('favicon', function() {
+  return function(url) {
+    return 'http://grabicon.com/icon?domain=' + url + '&size=64'
+  }
+})
 
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
-
-  // Form data for the login modal
+.controller('AppCtrl', function($scope, $timeout, Setting, $rootScope) {
+  Setting.get({id: $rootScope.user.user_id}, function(results) {
+    $rootScope.setting = results;
+  });
 
 })
 
@@ -18,9 +18,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     username = $scope.username;
     password = $scope.password;
     Authentication.login(username, password);
-    if($scope.rememberMe) {
-      localStorage.setItem('rememberMe', true);
-    }
+    localStorage.setItem('rememberMe', $scope.rememberMe);
   }
 
   $scope.register = function() {
@@ -37,22 +35,40 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('MainCtrl', function($scope, $stateParams) {})
+.controller('MainCtrl', function($scope, $stateParams) {
 
-.controller('ExploreCtrl', function($scope, Favorite, authToken) {
+})
+
+.controller('ExploreCtrl', function($scope, Favorite) {
   $scope.favorites = [];
-  Favorite.query(authToken.get()).$promise.then(function(results) {
+  Favorite.query().$promise.then(function(results) {
     $scope.favorites = results;
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams) {})
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, Entry, chunk) {
+  $scope.chunks = [];
+  Entry.query(function(results) {
+    $rootScope.entries = results;
+    $scope.chunks = chunk(results, 3);
+  });
+})
 
-.controller('FavoriteCtrl', function($scope, $stateParams) {})
+.controller('FavoriteCtrl', function($scope, $stateParams, Favorite) {
+  Favorite.query(function(results) {
+    $scope.favorites = results;
+  });
+})
 
-.controller('SettingCtrl', function($scope, $stateParams) {})
+.controller('SettingCtrl', function($scope, $stateParams) {
 
-.controller('SearchCtrl', function($scope, $stateParams) {})
+})
+
+.controller('SearchCtrl', function($scope, $stateParams, $rootScope) {
+  $scope.query = {};
+  $scope.queryBy = 'title';
+
+})
 
 .controller('AboutCtrl', function($scope, $stateParams) {})
 

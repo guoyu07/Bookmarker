@@ -1,1 +1,12 @@
-favorites
+<ion-view view-title="收藏夹">
+  <ion-content class="has-tabs-top">
+    <div class="list">
+      <a class="item" href="#" ng-repeat="favor in favorites">
+        {{favor.name}}
+        <span class="item-note">
+          {{favor.entries_num}}
+        </span>
+      </a>
+    </div>
+  </ion-content>
+</ion-view>

@@ -18,7 +18,10 @@ class UploadToDir(object):
 
     def __call__(self, instance, filename):
         ext = filename.split('.')[-1]
-        return self.path.format(self.sub_path, instance.username, uuid4().hex, ext)
+        name = instance.id
+        if hasattr(instance, 'username'):
+            name = instance.username
+        return self.path.format(self.sub_path, name, uuid4().hex, ext)
 
 
 class Setting(models.Model):
@@ -32,7 +35,7 @@ class Setting(models.Model):
         ('Medium', '默认'),
         ('Narrow', '窄')
     )
-    
+
     display_style = models.CharField(max_length=16, verbose_name='显示风格', choices=DISPLAYS, default='Medium')
     layout_style = models.CharField(max_length=16, verbose_name='布局风格', choices=LAYOUTS, default='Medium')
     hot_key = models.CharField(max_length=16, verbose_name='快捷键', blank=True)
@@ -145,4 +148,3 @@ def entry_pre_save_handler(sender, instance, created, **kwargs):
 def entry_pre_del_handler(sender, instance, **kwargs):
     instance.belong.entries_num -= 1
     instance.belong.save()
-

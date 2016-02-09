@@ -1,14 +1,14 @@
-<ion-view view-title="设置">
+<ion-view view-title="书签">
   <ion-content class="has-tabs-top">
       <div class="list">
-        <div class="row responsive-sm">
-          <div class="col">
+        <div class="row responsive-sm" ng-repeat="rows in chunks">
+          <div class="col-33" ng-repeat="entry in rows">
             <div class="card">
-              <a href="https://baidu.com" target="_blank" style="text-decoration: none;">
-              <div class="item item-avatar">
-                <img src="https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png">
-                <h2>百度</h2>
-                <p>百度一下，你就知道</p>
+              <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
+              <div class="item item-thumbnail-left">
+                <img ng-src="{{entry.url | favicon}}">
+                <h2>{{entry.title}}</h2>
+                <p>{{entry.remark}}</p>
               </div>
               <!-- <div class="item item-text-wrap">
                 detail mode

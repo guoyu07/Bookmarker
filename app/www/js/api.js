@@ -1,20 +1,19 @@
-function make_resource(path) {
-  return function($resource, API_URL) {
-    return {
-      query: function(api_token) {
-        return $resource(API_URL + '/'+ path +'/:id', {
-          id: '@id'
-        }, {
-          query: {
-            method: 'GET',
-            isArray: true,
-            headers: {
-              'Authorization': 'JWT ' + api_token
-            }
-          }
-        }).query();
-      }
-    }
+function make_resource(path, isArray) {
+  return function($resource, authToken, API_URL) {
+    var headers = {'Authorization': 'JWT ' + authToken.get()}
+    return $resource(API_URL + '/' + path + '/:id/', {
+      id: '@id'
+    }, {
+      query: {
+        method: 'GET',
+        isArray: isArray || false,
+        headers: headers
+      },
+      get: {headers: headers},
+      save: {headers: headers},
+      remove: {headers: headers},
+      delete: {headers: headers},
+    });
   }
 }
 
@@ -51,29 +50,24 @@ angular.module('bookmarker.api', ['ngResource'])
   }
 ])
 
-.factory('User', [
-  '$resource',
+.factory('User',
   make_resource('users')
-])
+)
 
-.factory('Favorite', [
-  '$resource', 'API_URL',
-  make_resource('favorites')
-])
+.factory('Favorite',
+  make_resource('favorites', true)
+)
 
-.factory('Entry', [
-  '$resource',
-  make_resource('entries')
-])
+.factory('Entry',
+  make_resource('entries', true)
+)
 
-.factory('Tag', [
-  '$resource', 'API_URL',
+.factory('Tag',
   make_resource('tags')
-])
+)
 
-.factory('Setting', [
-  '$resource', 'API_URL', 'make_resource',
+.factory('Setting',
   make_resource('settings')
-])
+)
 
 ;
