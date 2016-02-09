@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('bookmarker', ['ionic', 'angular-jwt', 'bookmarker.controllers'])
+angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.controllers'])
 
 .run(function($ionicPlatform, $rootScope, $state, Authentication, authToken, jwtHelper) {
   $ionicPlatform.ready(function() {
@@ -22,11 +22,10 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'bookmarker.controllers'])
   });
 
   $rootScope.$on('$locationChangeSuccess', function(event, toState, toStateParams) {
-    var token = authToken.get();
-    if(jwtHelper.isTokenExpired(token)) {
+    if(authToken.isTokenExpired()) {
       $state.go('app.login');
     } else {
-      if((jwtHelper.getTokenExpirationDate(token) - new Date())/1000 < 300) {
+      if(authToken.isRemember()) {
         authToken.refreshToken();
       }
     }
@@ -42,24 +41,66 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'bookmarker.controllers'])
   $resourceProvider.defaults.stripTrailingSlashes = false;
 })
 
+.service('UI', function($http, $window, $q, $ionicLoading, $timeout){
+
+  this.toast = function(msg, duration, position){
+    if(!duration)
+        duration = 'long';
+    if(!position)
+        position = 'center';
+
+    if($window.plugins){
+        if($window.plugins.toast)
+            $window.plugins.toast.show(msg, duration, position,
+                function(a){}, function(err){})
+        return;
+    }
+
+    $ionicLoading.show({
+        template: msg,
+        noBackdrop: true,
+        duration: (duration == 'short' ? 700 : 1500)
+    });
+
+}})
+
 .service('authToken', function($http, jwtHelper, API_HOST) {
+  var self = this;
+  self.TOKEN_NAME = 'bookmarker.token';
+
   return {
     save: function(token) {
-      localStorage.setItem('bookmarker.token', token);
+      localStorage.setItem(self.TOKEN_NAME, token);
     },
     get: function() {
-      return localStorage.getItem('bookmarker.token');
+      return localStorage.getItem(self.TOKEN_NAME);
+    },
+    remove: function() {
+      localStorage.removeItem(self.TOKEN_NAME);
     },
     getTokenAuthUrl: function() {
       return API_HOST + '/api-token-auth/';
     },
+    isTokenExpired: function() {
+      return jwtHelper.isTokenExpired(this.get());
+    },
+    getTokenExpirationDate: function() {
+      return jwtHelper.getTokenExpirationDate(this.get());
+    },
+    isRemember: function() {
+      return localStorage.getItem('rememberMe');
+    },
     refreshToken: function() {
-      // bug
-      $http.post(API_HOST+ '/api-token-refresh/', {
-        token: localStorage.getItem('bookmarker.token')
-      }).success(function(response){
-        localStorage.setItem('bookmarker.token', response.token);
-      });
+      if(this.getTokenExpirationDate() - new Date()/1000 < 1800)
+      {
+        console.log(jwtHelper.getTokenExpirationDate(this.get()));
+        $http.post(API_HOST+ '/api-token-refresh/', {
+          token: localStorage.getItem('bookmarker.token')
+        }).success(function(response){
+          localStorage.setItem('bookmarker.token', response.token);
+        });
+        console.log(jwtHelper.getTokenExpirationDate(localStorage.getItem('bookmarker.token')));
+      }
     }
 
   }

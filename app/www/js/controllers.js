@@ -19,7 +19,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     password = $scope.password;
     Authentication.login(username, password);
     if($scope.rememberMe) {
-      Authentication.remember();
+      localStorage.setItem('rememberMe', true);
     }
   }
 
@@ -29,6 +29,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
       password: $scope.password,
     });
     user.$save();
+  }
+
+  $scope.logout = function() {
+    Authentication.logout();
   }
 
 })

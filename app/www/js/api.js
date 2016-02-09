@@ -21,8 +21,8 @@ function make_resource(path) {
 angular.module('bookmarker.api', ['ngResource'])
 
 .factory('Authentication', [
-  '$http', '$state', 'authToken',
-  function($http, $state, authToken) {
+  '$http', '$state', 'authToken', 'UI',
+  function($http, $state, authToken, UI) {
     function login(username, password) {
       return $http.post(authToken.getTokenAuthUrl(), {
         username: username,
@@ -35,17 +35,18 @@ angular.module('bookmarker.api', ['ngResource'])
       }
 
       function loginErrorFn(response, status, headers, config) {
-        console.log(response.data);
+        UI.toast('登录失败');
+        // console.log(response.data);
       };
     }
 
-    function remember() {
-      authToken.refreshToken();
+    function logout() {
+      authToken.remove();
     }
 
     return {
       login: login,
-      remember: remember
+      logout: logout,
     };
   }
 ])
