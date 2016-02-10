@@ -6,18 +6,21 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 })
 
-.controller('AppCtrl', function($scope, $timeout, Setting, $rootScope) {
-  Setting.get({id: $rootScope.user.user_id}, function(results) {
-    $rootScope.setting = results;
-  });
+.controller('AppCtrl', function($scope, $timeout) {
 
 })
 
-.controller('LoginCtrl', function($scope, $stateParams, Authentication, User) {
+.controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state,
+  Authentication, User, Setting, UI) {
+
   $scope.login = function() {
     username = $scope.username;
     password = $scope.password;
-    Authentication.login(username, password);
+    Authentication.login(username, password, function(response, status, headers, config) {
+      $state.go('app.main');
+    }, function(response, status, headers, config) {
+      UI.toast('登录失败');
+    });
     localStorage.setItem('rememberMe', $scope.rememberMe);
   }
 
@@ -46,11 +49,18 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, Entry, chunk) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, Entry, chunk, userProfile) {
   $scope.chunks = [];
+
+  userProfile.setting().then(function(results) {
+    arr = userProfile.getBmSize(results.display_style);
+    $scope.bmSize = arr[0];
+    $scope.bmClass = arr[1];
+  });
+
   Entry.query(function(results) {
     $rootScope.entries = results;
-    $scope.chunks = chunk(results, 3);
+    $scope.chunks = chunk(results, $scope.bmSize);
   });
 })
 
@@ -60,7 +70,34 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('SettingCtrl', function($scope, $stateParams) {
+.controller('SettingCtrl', function($scope, $stateParams, $rootScope, Setting, userProfile, UI) {
+  var setting = null;
+
+  userProfile.setting().then(function(results) {
+    setting = results;
+    $scope.displayStyle = userProfile.getDisplayStyle(results.display_style);
+    $scope.layoutStyle = userProfile.getLayoutStyle(results.layout_style);
+  });
+
+  $scope.changeDisplayStyle = function(displayStyle) {
+    $scope.displayStyle = displayStyle;
+    setting.display_style = userProfile.getDisplayStyle($scope.displayStyle);
+    Setting.update({
+      id: setting.id
+    }, setting, function() {}, function() {
+      UI.toast("修改失败");
+    });
+  }
+
+  $scope.changeLayoutStyle = function(layoutStyle) {
+    $scope.layoutStyle = layoutStyle;
+    setting.layout_style = userProfile.getLayoutStyle($scope.layoutStyle);
+    Setting.update({
+      id: setting.id
+    }, setting, function() {}, function() {
+      UI.toast("修改失败");
+    });
+  }
 
 })
 

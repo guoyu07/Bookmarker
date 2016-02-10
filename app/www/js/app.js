@@ -27,9 +27,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       $rootScope.user = {'username': '未登录'};
     } else {
       $rootScope.user = authToken.getProfile();
-      if(authToken.isRemember()) {
-        authToken.refreshToken();
-      }
+      // if(authToken.isRemember()) {
+      //   authToken.refreshToken();
+      // }
     }
   });
 
@@ -49,6 +49,23 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       newArr.push(arr.slice(i, i + size));
     }
     return newArr;
+})
+
+.value('MappingObject', function(obj) {
+  function MappingObject(obj){this.obj=obj;}
+  MappingObject.prototype.get = function(k_or_v) {
+    if (k_or_v in obj) return obj[k_or_v];
+    else {
+      for(var k in obj) {
+        if(obj.hasOwnProperty(k)) {
+          if(obj[k] == k_or_v)
+            return k;
+        }
+      }
+    }
+    return undefined;
+  }
+  return new MappingObject(obj);
 })
 
 .service('UI', function($http, $window, $q, $ionicLoading, $timeout){
@@ -73,6 +90,35 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     });
 
 }})
+
+.service('userProfile', function($rootScope, MappingObject, Setting) {
+  var displayMapping = MappingObject({
+    "Big": "大",
+    "Medium": "默认",
+    "Small": "小"
+  })
+  var layoutMapping = MappingObject({
+    "Wide": "宽",
+    "Medium": "默认",
+    "Narrow": "窄"
+  })
+  return {
+    getLayoutStyle: function(layoutStyle) {
+      return layoutMapping.get(layoutStyle);
+    },
+    getDisplayStyle: function(displayStyle) {
+      return displayMapping.get(displayStyle);
+    },
+    getBmSize: function(displayStyle) {
+      if(displayStyle == "Big") return [2, "col-50"];
+      else if(displayStyle == "Small") return [4, "col-25"];
+      else return [3, "col-33"];
+    },
+    setting: function() {
+      return Setting.get({id: $rootScope.user.user_id}).$promise;
+    }
+  }
+})
 
 .service('authToken', function($http, jwtHelper, API_HOST) {
   var self = this;
@@ -132,7 +178,8 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
         var defer = $q.defer();
 
         if (rejection.status == 401) {
-          $state.go('app.login');
+          window.location = '#/app/login';
+          // $state.go('app.login');
         }
         defer.reject(rejection);
         return defer.promise;

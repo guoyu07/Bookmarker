@@ -9,10 +9,26 @@ function make_resource(path, isArray) {
         isArray: isArray || false,
         headers: headers
       },
-      get: {headers: headers},
-      save: {headers: headers},
-      remove: {headers: headers},
-      delete: {headers: headers},
+      get: {
+        method: 'GET',
+        headers: headers
+      },
+      save: {
+        method: 'POST',
+        headers: headers
+      },
+      remove: {
+        method: 'DELETE',
+        headers: headers
+      },
+      delete: {
+        method: 'DELETE',
+        headers: headers
+      },
+      update: {
+        method: 'PUT',
+        headers: headers
+      }
     });
   }
 }
@@ -20,9 +36,9 @@ function make_resource(path, isArray) {
 angular.module('bookmarker.api', ['ngResource'])
 
 .factory('Authentication', [
-  '$http', '$state', 'authToken', 'UI',
-  function($http, $state, authToken, UI) {
-    function login(username, password) {
+  '$http', '$state', 'authToken',
+  function($http, $state, authToken) {
+    function login(username, password, successAction, errorAction) {
       return $http.post(authToken.getTokenAuthUrl(), {
         username: username,
         password: password
@@ -30,11 +46,11 @@ angular.module('bookmarker.api', ['ngResource'])
 
       function loginSuccessFn(response, status, headers, config) {
         authToken.save(response.data.token);
-        $state.go('app.main');
+        if(typeof(successAction) == 'function') successAction(response, status, headers, config);
       }
 
       function loginErrorFn(response, status, headers, config) {
-        UI.toast('登录失败');
+        if(typeof(errorAction) == 'function') errorAction(response, status, headers, config);
         // console.log(response.data);
       };
     }

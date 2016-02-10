@@ -1,24 +1,27 @@
 <ion-view view-title="设置">
   <ion-content class="has-tabs-top">
     <div class="list">
-	  <li class="item item-toggle">
-	     选项1
-	     <label class="toggle toggle-positive">
-	       <input type="checkbox">
-	       <div class="track">
-	         <div class="handle"></div>
-	       </div>
-	     </label>
-	  </li>
-	  <li class="item item-toggle">
-	     选项2
-	     <label class="toggle toggle-positive">
-	       <input type="checkbox">
-	       <div class="track">
-	         <div class="handle"></div>
-	       </div>
-	     </label>
-	  </li>
-	</div>
+      <label class="item item-input item-select">
+        <div class="input-label">
+          书签显示风格
+        </div>
+        <select ng-model="displayStyle"
+          ng-change="changeDisplayStyle(displayStyle)">
+          <option>大</option>
+          <option>默认</option>
+          <option>小</option>
+        </select>
+      </label>
+      <label class="item item-input item-select">
+        <div class="input-label">
+          布局风格
+        </div>
+        <select ng-model="layoutStyle" ng-change="changeLayoutStyle(layoutStyle)">
+          <option>宽</option>
+          <option>默认</option>
+          <option>窄</option>
+        </select>
+      </label>
+    </div>
   </ion-content>
 </ion-view>

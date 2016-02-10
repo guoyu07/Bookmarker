@@ -1,1 +1,10 @@
 /* Empty. Add your own CSS if you like */
+.bookmark {
+  margin: 10px 10px;
+}
+
+@media screen and (max-width:550px) {
+  .bookmark {
+    margin: 0px 10px;
+  }
+}

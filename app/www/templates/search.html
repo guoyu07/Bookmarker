@@ -1,14 +1,18 @@
-<div class="list">
-  <div class="list list-inset">
-    <label class="item item-input">
-      <i class="icon ion-search placeholder-icon"></i>
-      <input type="text" placeholder="输入要查找的书签信息..." ng-model="query[queryBy]">
-    </label>
-  </div>
+<ion-view view-title="搜索">
+  <ion-content has-header="true">
+    <div class="list">
+      <div class="list list-inset">
+        <label class="item item-input">
+          <i class="icon ion-search placeholder-icon"></i>
+          <input type="text" placeholder="输入要查找的书签信息..." ng-model="query[queryBy]">
+        </label>
+      </div>
 
-  <a class="item item-thumbnail-left" href="{{entry.url}}" target="_blank" ng-repeat="entry in $root.entries | filter:query">
-    <img ng-src="{{entry.url | favicon}}">
-    <h2>{{entry.title}}</h2>
-    <p>{{entry.remark}}</p>
-  </a>
-</div>
+      <a class="item item-thumbnail-left" href="{{entry.url}}" target="_blank" ng-repeat="entry in $root.entries | filter:query">
+        <img ng-src="{{entry.url | favicon}}">
+        <h2>{{entry.title}}</h2>
+        <p>{{entry.remark}}</p>
+      </a>
+    </div>
+  </ion-content>
+</ion-view>

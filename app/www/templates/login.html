@@ -1,5 +1,5 @@
-<ion-view>
-  <ion-content>
+<ion-view view-title="登录">
+  <ion-content overflow-scroll="true" padding="true" class="has-header">
     <form ng-submit="login()" ng-controller="LoginCtrl">
       <div class="list">
         <label class="item item-input">
@@ -10,10 +10,10 @@
           <span class="input-label">密码</span>
           <input type="password" ng-model="password">
         </label>
-        <ion-checkbox ng-model="rememberMe">记住我</ion-checkbox>
-        <label class="item">
-          <button class="button button-block button-positive" type="submit">登录</button>
-        </label>
+        <ion-toggle toggle-class="toggle-positive" ng-model="rememberMe">记住我</ion-toggle>
+        <div class="spacer" style="height: 40px;"></div>
+        <button class="button button-positive button-block " type="submit">登录</button>
+        <a href="#/app/signup" class="button button-positive button-clear button-block ">点击注册一个新用户</a>
       </div>
     </form>
   </ion-content>
