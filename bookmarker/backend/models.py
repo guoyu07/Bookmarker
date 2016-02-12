@@ -26,9 +26,9 @@ class UploadToDir(object):
 
 class Setting(models.Model):
     DISPLAYS = (
-        ('Big', '大'),
+        ('Detail', '详细'),
         ('Medium', '默认'),
-        ('Small', '小')
+        ('Short', '简短')
     )
     LAYOUTS = (
         ('Wide', '宽'),

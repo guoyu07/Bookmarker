@@ -15,7 +15,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
-    entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
+    entries = EntrySerializer(many=True, read_only=True)
 
     class Meta:
         model = Favorite
@@ -44,7 +44,6 @@ class TagRelationSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     setting = serializers.HyperlinkedIdentityField(read_only=True, view_name='setting-detail')
     favorites = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='favorite-detail')
-    # favorites = FavoriteSerializer(read_only=True, many=True)
 
     class Meta:
         model = User

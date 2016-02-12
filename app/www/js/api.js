@@ -2,7 +2,7 @@ function make_resource(path, isArray) {
   return function($resource, AuthService, API_URL) {
     var headers = {
       'Authorization': function(){return 'JWT ' + AuthService.get();}
-    }
+    };
     return $resource(API_URL + '/' + path + '/:id/', {
       id: '@id'
     }, {

@@ -17,7 +17,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 .controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state, AuthService,
   Authentication, User, Setting, UserProfile, UI) {
-  console.log('LoginCtrl');
 
   $scope.login = function() {
     username = $scope.username;
@@ -45,12 +44,13 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.logout = function() {
     Authentication.logout();
+    UserProfile.removeProfile();
+    $state.go('app.login');
   }
 
 })
 
 .controller('MainCtrl', function($scope, $stateParams) {
-  console.log('MainCtrl');
 })
 
 .controller('ExploreCtrl', function($scope, Favorite) {
@@ -61,31 +61,51 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, Entry, chunk, UserProfile) {
-  console.log('BookmarkCtrl');
   $scope.chunks = [];
 
-  UserProfile.setting().then(function(results) {
-    arr = UserProfile.getBmSize(results.display_style);
-    $scope.bmSize = arr[0];
+  $rootScope.$on('bmLayoutChanged', function(e, layoutStyle) {
+    arr = UserProfile.getBmStyle(layoutStyle);
+    $scope.chunks = chunk($rootScope.entries, arr[0]);
     $scope.bmClass = arr[1];
   });
 
-  Entry.query(function(results) {
-    $rootScope.entries = results;
-    $scope.chunks = chunk(results, $scope.bmSize);
+  UserProfile.setting().then(function(results) {
+    arr = UserProfile.getBmStyle(results.layout_style);
+    $scope.bmClass = arr[1];
+    Entry.query(function(results) {
+      $rootScope.entries = results;
+      $scope.chunks = chunk(results, arr[0]);
+    });
   });
+
 })
 
-.controller('FavoriteCtrl', function($scope, $stateParams, Favorite) {
+.controller('FavoriteCtrl', function($scope, $stateParams, Favorite, Entry, $ionicModal) {
+  $ionicModal.fromTemplateUrl('templates/favor.html', {
+    scope: $scope,
+    animation: 'slide-in-up'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+
   Favorite.query(function(results) {
     $scope.favorites = results;
   });
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+  $scope.showFavorite = function(id) {
+    Favorite.get({id: id}, function(results) {
+      $scope.favor = results;
+      $scope.modal.show();
+    })
+  }
 })
 
-.controller('SettingCtrl', function($scope, $stateParams, Setting, UserProfile, UI) {
-  console.log('SettingCtrl');
+.controller('SettingCtrl', function($scope, $stateParams, $rootScope, Setting, UserProfile, UI) {
   var setting = null;
-  console.log(UserProfile.getProfile());
 
   UserProfile.setting().then(function(results) {
     setting = results;
@@ -94,8 +114,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 
   $scope.changeDisplayStyle = function(displayStyle) {
-    $scope.displayStyle = displayStyle;
-    setting.display_style = UserProfile.getDisplayStyle($scope.displayStyle);
+    var ds = UserProfile.getDisplayStyle($scope.displayStyle);
+    setting.display_style = ds;
+
     Setting.update({
       id: setting.id
     }, setting, function() {}, function() {
@@ -104,8 +125,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 
   $scope.changeLayoutStyle = function(layoutStyle) {
-    $scope.layoutStyle = layoutStyle;
-    setting.layout_style = UserProfile.getLayoutStyle($scope.layoutStyle);
+    var ls = UserProfile.getLayoutStyle(layoutStyle);
+    setting.layout_style = ls;
+    $rootScope.$emit('bmLayoutChanged', ls);
+
     Setting.update({
       id: setting.id
     }, setting, function() {}, function() {

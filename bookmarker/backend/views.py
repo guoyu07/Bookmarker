@@ -8,7 +8,7 @@ from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerialize
     SettingSerializer, TagSerializer, TagRelationSerializer, UserSerializer)
 
 from .permissions import (IsAdminOrIsSelf, EntryOwnerCanEditPermission, UserOwnerCanEditPermission,
-    SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission)
+    SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission, CanViewPermisson)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -48,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class EntryViewSet(viewsets.ModelViewSet):
     queryset = Entry.objects.all().order_by('-created_at')
     serializer_class = EntrySerializer
-    permission_classes = (EntryOwnerCanEditPermission, permissions.IsAuthenticated)
+    permission_classes = (EntryOwnerCanEditPermission, CanViewPermisson, permissions.IsAuthenticated)
 
     def list(self, request):
         if request.user.is_superuser:
@@ -79,7 +79,7 @@ class EntryViewSet(viewsets.ModelViewSet):
 class FavoriteViewSet(viewsets.ModelViewSet):
     queryset = Favorite.objects.all().order_by('-created_at')
     serializer_class = FavoriteSerializer
-    permission_classes = (FavoriteOwnerCanEditPermission, permissions.IsAuthenticated)
+    permission_classes = (FavoriteOwnerCanEditPermission, CanViewPermisson, permissions.IsAuthenticated)
 
     def list(self, request):
         if request.user.is_superuser:

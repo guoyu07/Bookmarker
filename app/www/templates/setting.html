@@ -7,9 +7,9 @@
         </div>
         <select ng-model="displayStyle"
           ng-change="changeDisplayStyle(displayStyle)">
-          <option>大</option>
+          <option>详细</option>
           <option>默认</option>
-          <option>小</option>
+          <option>简短</option>
         </select>
       </label>
       <label class="item item-input item-select">
@@ -22,6 +22,9 @@
           <option>窄</option>
         </select>
       </label>
+      <ion-item class="destructive" ng-controller="LoginCtrl" ng-click="logout()">
+        <strong>退出</strong>
+      </ion-item>
     </div>
   </ion-content>
 </ion-view>

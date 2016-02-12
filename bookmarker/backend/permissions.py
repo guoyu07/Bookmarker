@@ -14,7 +14,7 @@ class IsAdminOrIsSelf(SafeMethodsOnlyPermission):
         return request.user.is_superuser or obj is None or request.user.id == obj.id
 
 
-def owner_can_edit_permisson(clsname, obj_attr, *, allow_safe=False):
+def owner_can_edit_permisson(clsname, obj_attr, *, allow_safe=True):
     def has_object_permission(self, request, view, obj=None):
         if obj is None:
             can_edit = True
@@ -29,8 +29,14 @@ def owner_can_edit_permisson(clsname, obj_attr, *, allow_safe=False):
     return type(clsname, (SafeMethodsOnlyPermission,), dict(has_object_permission=has_object_permission))
 
 
-UserOwnerCanEditPermission = owner_can_edit_permisson('UserOwnerCanEditPermission', 'id', allow_safe=True)
+class CanViewPermisson(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj=None):
+        if obj is None:
+            return True
+        return obj.is_public == True or request.user == obj.created_by
+
+
+UserOwnerCanEditPermission = owner_can_edit_permisson('UserOwnerCanEditPermission', 'id')
 FavoriteOwnerCanEditPermission = owner_can_edit_permisson('FavoriteOwnerCanEditPermission', 'created_by')
 EntryOwnerCanEditPermission = owner_can_edit_permisson('EntryOwnerCanEditPermission', 'created_by')
 SettingOwnerCanEditPermission = owner_can_edit_permisson('SettingOwnerCanEditPermission', 'owner')
-

@@ -91,9 +91,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 .service('UserProfile', function(MappingObject, AuthService, Setting) {
   var displayMapping = MappingObject({
-    "Big": "大",
+    "Detail": "详细",
     "Medium": "默认",
-    "Small": "小"
+    "Short": "简短"
   });
   var layoutMapping = MappingObject({
     "Wide": "宽",
@@ -112,6 +112,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       }
       localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
     },
+    removeProfile: function() {
+      localStorage.removeItem('bookmarker.user.profile');
+    },
     getProfile: function() {
       if(!AuthService.isLoggedIn())
         return {'username': '未登录'};
@@ -123,9 +126,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     getDisplayStyle: function(displayStyle) {
       return displayMapping.get(displayStyle);
     },
-    getBmSize: function(displayStyle) {
-      if(displayStyle == "Big") return [2, "col-50"];
-      else if(displayStyle == "Small") return [4, "col-25"];
+    getBmStyle: function(layoutStyle) {
+      if(layoutStyle == "Wide") return [2, "col-50"];
+      else if(layoutStyle == "Narrow") return [4, "col-25"];
       else return [3, "col-33"];
     },
     setting: function() {
