@@ -6,7 +6,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.controllers'])
 
-.run(function($ionicPlatform, $rootScope, $state, Authentication, authToken) {
+.run(function($ionicPlatform, $rootScope, $state, Authentication, AuthService) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -22,13 +22,11 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
   $rootScope.$on('$locationChangeSuccess', function(event, toState, toStateParams) {
-    if(authToken.isTokenExpired()) {
+    if(AuthService.isTokenExpired()) {
       $state.go('app.login');
-      $rootScope.user = {'username': '未登录'};
     } else {
-      $rootScope.user = authToken.getProfile();
-      // if(authToken.isRemember()) {
-      //   authToken.refreshToken();
+      // if(AuthService.isRemember()) {
+      //   AuthService.refreshToken();
       // }
     }
   });
@@ -91,18 +89,33 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 }})
 
-.service('userProfile', function($rootScope, MappingObject, Setting) {
+.service('UserProfile', function(MappingObject, AuthService, Setting) {
   var displayMapping = MappingObject({
     "Big": "大",
     "Medium": "默认",
     "Small": "小"
-  })
+  });
   var layoutMapping = MappingObject({
     "Wide": "宽",
     "Medium": "默认",
     "Narrow": "窄"
-  })
+  });
+  var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
+  if(userProfile != null)
+    AuthService.setIsLoggedIn(true);
+
   return {
+    setProfile: function(profile) {
+      if(profile != undefined && profile != null) {
+        userProfile = profile;
+      }
+      localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
+    },
+    getProfile: function() {
+      if(!AuthService.isLoggedIn())
+        return {'username': '未登录'};
+      return userProfile;
+    },
     getLayoutStyle: function(layoutStyle) {
       return layoutMapping.get(layoutStyle);
     },
@@ -115,42 +128,48 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       else return [3, "col-33"];
     },
     setting: function() {
-      return Setting.get({id: $rootScope.user.user_id}).$promise;
+      return Setting.get({id: userProfile.user_id}).$promise;
     }
   }
 })
 
-.service('authToken', function($http, jwtHelper, API_HOST) {
-  var self = this;
-  self.TOKEN_NAME = 'bookmarker.token';
+.service('AuthService', function($http, jwtHelper, API_HOST) {
+  var TOKEN_NAME = 'bookmarker.token';
+  var isLoggedIn = false;
 
   return {
     save: function(token) {
-      localStorage.setItem(self.TOKEN_NAME, token);
+      isLoggedIn = true;
+      localStorage.setItem(TOKEN_NAME, token);
     },
     get: function() {
-      return localStorage.getItem(self.TOKEN_NAME);
-    },
-    getProfile: function() {
-      var profile = null;
-      try {
-        profile = jwtHelper.decodeToken(this.get())
-      } catch (e) {
-        return {'username': '未登录'}
-      }
-      return profile;
+      var token = localStorage.getItem(TOKEN_NAME);
+      if(token == undefined)
+        isLoggedIn = false;
+      return token;
     },
     remove: function() {
-      localStorage.removeItem(self.TOKEN_NAME);
+      localStorage.removeItem(TOKEN_NAME);
+    },
+    decodeToken: function(token) {
+      return jwtHelper.decodeToken(token);
     },
     getTokenAuthUrl: function() {
       return API_HOST + '/api-token-auth/';
     },
-    isTokenExpired: function() {
-      return jwtHelper.isTokenExpired(this.get());
-    },
     getTokenExpirationDate: function() {
       return jwtHelper.getTokenExpirationDate(this.get());
+    },
+    isTokenExpired: function() {
+      expired = jwtHelper.isTokenExpired(this.get());
+      if(expired) isAuthed = false;
+      return expired;
+    },
+    setIsLoggedIn: function(status) {
+      isLoggedIn = status;
+    },
+    isLoggedIn: function() {
+      return isLoggedIn;
     },
     isRemember: function() {
       return localStorage.getItem('rememberMe');
@@ -158,13 +177,11 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     refreshToken: function() {
       if(this.getTokenExpirationDate() - new Date()/1000 < 1800)
       {
-        console.log(jwtHelper.getTokenExpirationDate(this.get()));
         $http.post(API_HOST+ '/api-token-refresh/', {
           token: localStorage.getItem('bookmarker.token')
         }).success(function(response){
           localStorage.setItem('bookmarker.token', response.token);
         });
-        console.log(jwtHelper.getTokenExpirationDate(localStorage.getItem('bookmarker.token')));
       }
     }
 

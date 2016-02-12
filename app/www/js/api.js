@@ -1,33 +1,34 @@
 function make_resource(path, isArray) {
-  return function($resource, authToken, API_URL) {
-    var headers = {'Authorization': 'JWT ' + authToken.get()}
+  return function($resource, AuthService, API_URL) {
+    var headers = function(){return {'Authorization': 'JWT ' + AuthService.get()}}
+    
     return $resource(API_URL + '/' + path + '/:id/', {
       id: '@id'
     }, {
       query: {
         method: 'GET',
         isArray: isArray || false,
-        headers: headers
+        headers: headers()
       },
       get: {
         method: 'GET',
-        headers: headers
+        headers: headers()
       },
       save: {
         method: 'POST',
-        headers: headers
+        headers: headers()
       },
       remove: {
         method: 'DELETE',
-        headers: headers
+        headers: headers()
       },
       delete: {
         method: 'DELETE',
-        headers: headers
+        headers: headers()
       },
       update: {
         method: 'PUT',
-        headers: headers
+        headers: headers()
       }
     });
   }
@@ -36,27 +37,26 @@ function make_resource(path, isArray) {
 angular.module('bookmarker.api', ['ngResource'])
 
 .factory('Authentication', [
-  '$http', '$state', 'authToken',
-  function($http, $state, authToken) {
+  '$http', '$state', 'AuthService',
+  function($http, $state, AuthService) {
     function login(username, password, successAction, errorAction) {
-      return $http.post(authToken.getTokenAuthUrl(), {
+      return $http.post(AuthService.getTokenAuthUrl(), {
         username: username,
         password: password
       }).then(loginSuccessFn, loginErrorFn);
 
       function loginSuccessFn(response, status, headers, config) {
-        authToken.save(response.data.token);
-        if(typeof(successAction) == 'function') successAction(response, status, headers, config);
+        successAction(response, status, headers, config);
       }
 
       function loginErrorFn(response, status, headers, config) {
-        if(typeof(errorAction) == 'function') errorAction(response, status, headers, config);
+        errorAction(response, status, headers, config);
         // console.log(response.data);
       };
     }
 
     function logout() {
-      authToken.remove();
+      AuthService.remove();
     }
 
     return {
