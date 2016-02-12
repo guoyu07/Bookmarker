@@ -8,7 +8,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 .controller('AppCtrl', function($scope, $timeout, $state, $rootScope, UserProfile) {
   $rootScope.user = UserProfile.getProfile();
-  console.log($rootScope.user);
   $rootScope.$on('userLogging', function(e, d) {
     $rootScope.user = UserProfile.getProfile();
     $state.go('app.main');
@@ -87,6 +86,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   console.log('SettingCtrl');
   var setting = null;
   console.log(UserProfile.getProfile());
+
   UserProfile.setting().then(function(results) {
     setting = results;
     $scope.displayStyle = UserProfile.getDisplayStyle(results.display_style);

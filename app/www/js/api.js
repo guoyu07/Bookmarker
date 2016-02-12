@@ -1,34 +1,35 @@
 function make_resource(path, isArray) {
   return function($resource, AuthService, API_URL) {
-    var headers = function(){return {'Authorization': 'JWT ' + AuthService.get()}}
-    
+    var headers = {
+      'Authorization': function(){return 'JWT ' + AuthService.get();}
+    }
     return $resource(API_URL + '/' + path + '/:id/', {
       id: '@id'
     }, {
       query: {
         method: 'GET',
         isArray: isArray || false,
-        headers: headers()
+        headers: headers
       },
       get: {
         method: 'GET',
-        headers: headers()
+        headers: headers
       },
       save: {
         method: 'POST',
-        headers: headers()
+        headers: headers
       },
       remove: {
         method: 'DELETE',
-        headers: headers()
+        headers: headers
       },
       delete: {
         method: 'DELETE',
-        headers: headers()
+        headers: headers
       },
       update: {
         method: 'PUT',
-        headers: headers()
+        headers: headers
       }
     });
   }

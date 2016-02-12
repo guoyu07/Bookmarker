@@ -100,6 +100,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     "Medium": "默认",
     "Narrow": "窄"
   });
+
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
   if(userProfile != null)
     AuthService.setIsLoggedIn(true);
@@ -161,8 +162,12 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       return jwtHelper.getTokenExpirationDate(this.get());
     },
     isTokenExpired: function() {
-      expired = jwtHelper.isTokenExpired(this.get());
-      if(expired) isAuthed = false;
+      try {
+        expired = jwtHelper.isTokenExpired(this.get());
+        if(expired) isLoggedIn = false;
+      } catch(e) {
+        return true;
+      }
       return expired;
     },
     setIsLoggedIn: function(status) {
