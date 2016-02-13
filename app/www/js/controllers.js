@@ -54,14 +54,19 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('ExploreCtrl', function($scope, Favorite) {
-  $scope.favorites = [];
-  Favorite.query().$promise.then(function(results) {
-    $scope.favorites = results;
+  $scope.exploreFavorites = [];
+  Favorite.query(function(results) {
+    $scope.exploreFavorites = results;
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, Entry, chunk, UserProfile) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $ionicLoading,UserEntry, chunk, UserProfile) {
   $scope.chunks = [];
+  $scope.displayMode = 1;
+
+  $ionicLoading.show({
+    template: '正在加载...'
+  });
 
   $rootScope.$on('bmLayoutChanged', function(e, layoutStyle) {
     arr = UserProfile.getBmStyle(layoutStyle);
@@ -69,18 +74,28 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.bmClass = arr[1];
   });
 
+  $rootScope.$on('bmDisplayChanged', function(e, displayStyle) {
+    if(displayStyle == "Detail") $scope.displayMode = 2;
+    else if(displayStyle == "Short") $scope.displayMode = 0;
+    else $scope.displayMode = 1;
+  });
+
   UserProfile.setting().then(function(results) {
     arr = UserProfile.getBmStyle(results.layout_style);
     $scope.bmClass = arr[1];
-    Entry.query(function(results) {
+    UserEntry.query({id: UserProfile.getProfile().user_id}, function(results) {
       $rootScope.entries = results;
       $scope.chunks = chunk(results, arr[0]);
+      $ionicLoading.hide();
     });
+  }, function(){
+    $ionicLoading.hide();
   });
 
 })
 
-.controller('FavoriteCtrl', function($scope, $stateParams, Favorite, Entry, $ionicModal) {
+.controller('FavoriteCtrl', function($scope, $stateParams, Favorite, UserFavorite, Entry,
+      UserProfile, $ionicModal) {
   $ionicModal.fromTemplateUrl('templates/favor.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -88,7 +103,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal = modal;
   });
 
-  Favorite.query(function(results) {
+  UserFavorite.query({id: UserProfile.getProfile().user_id}, function(results) {
     $scope.favorites = results;
   });
 
@@ -114,8 +129,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 
   $scope.changeDisplayStyle = function(displayStyle) {
-    var ds = UserProfile.getDisplayStyle($scope.displayStyle);
+    var ds = UserProfile.getDisplayStyle(displayStyle);
     setting.display_style = ds;
+    $rootScope.$emit('bmDisplayChanged', ds);
 
     Setting.update({
       id: setting.id

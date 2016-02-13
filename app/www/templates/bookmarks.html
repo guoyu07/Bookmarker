@@ -5,14 +5,25 @@
           <div class="{{bmClass}}" ng-repeat="entry in rows">
             <div class="card bookmark">
               <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
-              <div class="item item-thumbnail-left">
+
+              <div class="item item-thumbnail-left" ng-if="displayMode>0">
                 <img ng-src="{{entry.url | favicon}}">
                 <h2>{{entry.title}}</h2>
                 <p>{{entry.remark}}</p>
               </div>
-              <!-- <div class="item item-text-wrap">
-                detail mode
-              </div> -->
+
+              <div class="item" ng-if="displayMode==0">
+                <h2>{{entry.title}}</h2>
+                <p>{{entry.url}}</p>
+              </div>
+
+              <div class="item item-text-wrap" ng-if="displayMode>1">
+                {{entry.created_at|date}}
+                <span class="item-note">
+                  {{entry.created_by}}
+                </span>
+              </div>
+
               </a>
             </div>
           </div>

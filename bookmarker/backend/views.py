@@ -36,12 +36,24 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             favorites = Favorite.objects.filter(created_by=user, is_public=True)
 
-        page = self.paginate_queryset(favorites)
-        if page is not None:
-            serializer = FavoriteSerializer(page, many=True, context={'request': request})
-            return self.get_paginated_response(serializer.data)
+        # 分页
+        # page = self.paginate_queryset(favorites)
+        # if page is not None:
+        #     serializer = FavoriteSerializer(page, many=True, context={'request': request})
+        #     return self.get_paginated_response(serializer.data)
 
         serializer = FavoriteSerializer(favorites, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @detail_route()
+    def entries(self, request, pk=None):
+        user = self.get_object()
+        if request.user.is_superuser or request.user.id == user.id:
+            entries = Entry.objects.filter(created_by=user)
+        else:
+            entries = Entry.objects.filter(created_by=user, is_public=True)
+
+        serializer = EntrySerializer(entries, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -85,7 +97,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
         if request.user.is_superuser:
             queryset = Favorite.objects.all()
         else:
-            queryset = Favorite.objects.filter(Q(created_by=request.user.id) | Q(is_public=True))
+            queryset = Favorite.objects.filter(is_public=True).exclude(created_by=request.user.id)
         serializer = FavoriteSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 

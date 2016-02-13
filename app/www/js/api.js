@@ -1,11 +1,9 @@
-function make_resource(path, isArray) {
+function make_resource(path, params, isArray) {
   return function($resource, AuthService, API_URL) {
     var headers = {
       'Authorization': function(){return 'JWT ' + AuthService.get();}
     };
-    return $resource(API_URL + '/' + path + '/:id/', {
-      id: '@id'
-    }, {
+    return $resource(API_URL + path, params, {
       query: {
         method: 'GET',
         isArray: isArray || false,
@@ -68,23 +66,32 @@ angular.module('bookmarker.api', ['ngResource'])
 ])
 
 .factory('User',
-  make_resource('users')
+  make_resource('/users/:id/', {id: '@id'})
 )
 
 .factory('Favorite',
-  make_resource('favorites', true)
+  make_resource('/favorites/:id/', {id: '@id'}, true)
 )
 
 .factory('Entry',
-  make_resource('entries', true)
+  make_resource('/entries/:id/', {id: '@id'}, true)
 )
 
 .factory('Tag',
-  make_resource('tags')
+  make_resource('/tags/:id/', {id: '@id'})
 )
 
 .factory('Setting',
-  make_resource('settings')
+  make_resource('/settings/:id/', {id: '@id'})
 )
+
+.factory('UserEntry',
+  make_resource('/users/:id/entries/', {id: '@id'}, true)
+)
+
+.factory('UserFavorite',
+  make_resource('/users/:id/favorites/', {id: '@id'}, true)
+)
+
 
 ;
