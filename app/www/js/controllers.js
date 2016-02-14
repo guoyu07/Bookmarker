@@ -50,7 +50,11 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('MainCtrl', function($scope, $stateParams) {
+.controller('MainCtrl', function($scope, $stateParams, $ionicTabsDelegate) {
+  $scope.onSwipeLeft = function() {
+    var index = $ionicTabsDelegate.selectedIndex();
+    $ionicTabsDelegate.select((index+1) % 3);
+  }
 })
 
 .controller('ExploreCtrl', function($scope, Favorite) {
@@ -60,13 +64,14 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $ionicLoading,UserEntry, chunk, UserProfile) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, UserEntry, chunk, UserProfile, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
+  $scope.loading = true;
 
-  $ionicLoading.show({
-    template: '正在加载...'
-  });
+  $scope.addEntry = function() {
+
+  }
 
   $rootScope.$on('bmLayoutChanged', function(e, layoutStyle) {
     arr = UserProfile.getBmStyle(layoutStyle);
@@ -81,15 +86,20 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 
   UserProfile.setting().then(function(results) {
+    $rootScope.$emit('bmDisplayChanged', results.display_style);
     arr = UserProfile.getBmStyle(results.layout_style);
     $scope.bmClass = arr[1];
     UserEntry.query({id: UserProfile.getProfile().user_id}, function(results) {
+      $scope.loading = false;
       $rootScope.entries = results;
       $scope.chunks = chunk(results, arr[0]);
-      $ionicLoading.hide();
+    }, function() {
+      $scope.loading = false;
+      UI.toast('加载书签失败');
     });
-  }, function(){
-    $ionicLoading.hide();
+  }, function() {
+    $scope.loading = false;
+    UI.toast('加载设置失败');
   });
 
 })

@@ -1,10 +1,11 @@
 <ion-view view-title="书签">
+  <ion-spinner icon="android" ng-show="loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
   <ion-content class="has-tabs-top">
-      <div class="list">
-        <div class="row responsive-sm" ng-repeat="rows in chunks">
-          <div class="{{bmClass}}" ng-repeat="entry in rows">
-            <div class="card bookmark">
-              <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
+    <div class="list">
+      <div class="row responsive-sm" ng-repeat="rows in chunks">
+        <div class="{{bmClass}}" ng-repeat="entry in rows">
+          <div class="card bookmark">
+            <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
 
               <div class="item item-thumbnail-left" ng-if="displayMode>0">
                 <img ng-src="{{entry.url | favicon}}">
@@ -18,16 +19,19 @@
               </div>
 
               <div class="item item-text-wrap" ng-if="displayMode>1">
-                {{entry.created_at|date}}
+                {{entry.created_at|date:'short' }}
                 <span class="item-note">
                   {{entry.created_by}}
                 </span>
               </div>
 
               </a>
-            </div>
           </div>
         </div>
       </div>
+    </div>
   </ion-content>
+  <button class="button button-float button-positive" ng-click="addEntry()">
+    <i class="icon ion-plus"></i>
+  </button>
 </ion-view>
