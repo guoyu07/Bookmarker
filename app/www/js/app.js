@@ -22,7 +22,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
   $rootScope.$on('$locationChangeSuccess', function(event, toState, toStateParams) {
-    if(AuthService.isTokenExpired()) {
+    if (AuthService.isTokenExpired()) {
       $state.go('app.login');
     } else {
       // if(AuthService.isRemember()) {
@@ -33,6 +33,38 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 })
 
+.directive('clickForOptions', ['$ionicGesture', function($ionicGesture) {
+  return {
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      $ionicGesture.on('hold', function(e) {
+        var content = element[0].querySelector('.item-content');
+        var buttons = element[0].querySelector('.item-options');
+
+        if (!buttons) {
+          return;
+        }
+        var buttonsWidth = buttons.offsetWidth;
+
+        ionic.requestAnimationFrame(function() {
+          content.style[ionic.CSS.TRANSITION] = 'all ease-out .25s';
+
+          if (!buttons.classList.contains('invisible')) {
+            content.style[ionic.CSS.TRANSFORM] = '';
+            setTimeout(function() {
+              buttons.classList.add('invisible');
+            }, 250);
+          } else {
+            buttons.classList.remove('invisible');
+            content.style[ionic.CSS.TRANSFORM] = 'translate3d(-' + buttonsWidth + 'px, 0, 0)';
+          }
+        });
+
+      }, element);
+    }
+  };
+}])
+
 .constant('API_HOST', 'http://192.168.33.10')
 
 .constant('API_URL', 'http://192.168.33.10/api')
@@ -42,21 +74,23 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 })
 
 .value('chunk', function(arr, size) {
-    var newArr = [];
-    for (var i = 0; i < arr.length; i += size) {
-      newArr.push(arr.slice(i, i + size));
-    }
-    return newArr;
+  var newArr = [];
+  for (var i = 0; i < arr.length; i += size) {
+    newArr.push(arr.slice(i, i + size));
+  }
+  return newArr;
 })
 
 .value('MappingObject', function(obj) {
-  function MappingObject(obj){this.obj=obj;}
+  function MappingObject(obj) {
+    this.obj = obj;
+  }
   MappingObject.prototype.get = function(k_or_v) {
     if (k_or_v in obj) return obj[k_or_v];
     else {
-      for(var k in obj) {
-        if(obj.hasOwnProperty(k)) {
-          if(obj[k] == k_or_v)
+      for (var k in obj) {
+        if (obj.hasOwnProperty(k)) {
+          if (obj[k] == k_or_v)
             return k;
         }
       }
@@ -66,28 +100,40 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   return new MappingObject(obj);
 })
 
-.service('UI', function($http, $window, $q, $ionicLoading, $timeout){
+// .service('ClipboardService', function(cordovaClipboard) {
+//   $cordovaClipboard
+//     .paste()
+//     .then(function(result) {
+//       // success, use result
+//     }, function() {
+//       // error
+//     });
+// })
 
-  this.toast = function(msg, duration, position){
-    if(!duration)
-        duration = 'long';
-    if(!position)
-        position = 'center';
+.service('UI', function($http, $window, $q, $ionicLoading, $timeout) {
 
-    if($window.plugins){
-        if($window.plugins.toast)
-            $window.plugins.toast.show(msg, duration, position,
-                function(a){}, function(err){})
-        return;
+  this.toast = function(msg, duration, position) {
+    if (!duration)
+      duration = 'long';
+    if (!position)
+      position = 'center';
+
+    if ($window.plugins) {
+      if ($window.plugins.toast)
+        $window.plugins.toast.show(msg, duration, position,
+          function(a) {},
+          function(err) {})
+      return;
     }
 
     $ionicLoading.show({
-        template: msg,
-        noBackdrop: true,
-        duration: (duration == 'long' ? 1500 : 700)
+      template: msg,
+      noBackdrop: true,
+      duration: (duration == 'long' ? 1500 : 700)
     });
 
-}})
+  }
+})
 
 .service('UserProfile', function(MappingObject, AuthService, Setting) {
   var displayMapping = MappingObject({
@@ -102,12 +148,12 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
-  if(userProfile != null)
+  if (userProfile != null)
     AuthService.setIsLoggedIn(true);
 
   return {
     setProfile: function(profile) {
-      if(profile != undefined && profile != null) {
+      if (profile != undefined && profile != null) {
         userProfile = profile;
       }
       localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
@@ -116,8 +162,10 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       localStorage.removeItem('bookmarker.user.profile');
     },
     getProfile: function() {
-      if(!AuthService.isLoggedIn())
-        return {'username': '未登录'};
+      if (!AuthService.isLoggedIn())
+        return {
+          'username': '未登录'
+        };
       return userProfile;
     },
     getLayoutStyle: function(layoutStyle) {
@@ -127,12 +175,14 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       return displayMapping.get(displayStyle);
     },
     getBmStyle: function(layoutStyle) {
-      if(layoutStyle == "Wide") return [2, "col-50"];
-      else if(layoutStyle == "Narrow") return [4, "col-25"];
+      if (layoutStyle == "Wide") return [2, "col-50"];
+      else if (layoutStyle == "Narrow") return [4, "col-25"];
       else return [3, "col-33"];
     },
     setting: function() {
-      return Setting.get({id: userProfile.user_id}).$promise;
+      return Setting.get({
+        id: userProfile.user_id
+      }).$promise;
     }
   }
 })
@@ -148,7 +198,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     },
     get: function() {
       var token = localStorage.getItem(TOKEN_NAME);
-      if(token == undefined)
+      if (token == undefined)
         isLoggedIn = false;
       return token;
     },
@@ -167,8 +217,8 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     isTokenExpired: function() {
       try {
         expired = jwtHelper.isTokenExpired(this.get());
-        if(expired) isLoggedIn = false;
-      } catch(e) {
+        if (expired) isLoggedIn = false;
+      } catch (e) {
         return true;
       }
       return expired;
@@ -183,11 +233,10 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       return localStorage.getItem('rememberMe');
     },
     refreshToken: function() {
-      if(this.getTokenExpirationDate() - new Date()/1000 < 1800)
-      {
-        $http.post(API_HOST+ '/api-token-refresh/', {
+      if (this.getTokenExpirationDate() - new Date() / 1000 < 1800) {
+        $http.post(API_HOST + '/api-token-refresh/', {
           token: localStorage.getItem('bookmarker.token')
-        }).success(function(response){
+        }).success(function(response) {
           localStorage.setItem('bookmarker.token', response.token);
         });
       }

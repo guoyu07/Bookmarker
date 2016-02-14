@@ -21,7 +21,8 @@
     "cordova-plugin-splashscreen",
     "cordova-plugin-statusbar",
     "cordova-plugin-x-toast",
-    "ionic-plugin-keyboard"
+    "ionic-plugin-keyboard",
+    "com.verso.cordova.clipboard"
   ],
   "cordovaPlatforms": [
     "ios",

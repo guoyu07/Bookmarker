@@ -1,0 +1,32 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-positive fix-buttons">
+    <a class="button" ng-click="closeModal()">取消</a>
+    <h1 class="title">新建书签</h1>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list">
+      <label class="item item-input item-floating-label">
+        <span class="input-label"></span>
+        <input type="url" placeholder="URL(*必填)" ng-model="newEntry.url" required>
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label"></span>
+        <input type="text" placeholder="标题(*必填)" ng-model="newEntry.title" required>
+      </label>
+      <label class="item item-input">
+        <textarea placeholder="备注" ng-model="newEntry.remark" required></textarea>
+      </label>
+      <label class="item item-input item-select">
+        <div class="input-label">
+          收藏夹
+        </div>
+        <select ng-model="newEntry.belong">
+          <option ng-repeat="favor in $root.favorites" value="{{favor.id}}">{{favor.name}}</option>
+        </select>
+      </label>
+    </div>
+    <div class="padding">
+      <button class="button button-block button-positive activated" ng-click="addEntry()">创建书签</button>
+    </div>
+  </ion-content>
+</ion-modal-view>

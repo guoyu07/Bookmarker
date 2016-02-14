@@ -1,17 +1,22 @@
 <ion-view view-title="书签">
-  <ion-spinner icon="android" ng-show="loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
+  <ion-spinner icon="android" ng-show="$root.loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
   <ion-content class="has-tabs-top">
-    <div class="list">
+    <ion-list class="list">
       <div class="row responsive-sm" ng-repeat="rows in chunks">
         <div class="{{bmClass}}" ng-repeat="entry in rows">
           <div class="card bookmark">
-            <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
 
-              <div class="item item-thumbnail-left" ng-if="displayMode>0">
-                <img ng-src="{{entry.url | favicon}}">
-                <h2>{{entry.title}}</h2>
-                <p>{{entry.remark}}</p>
-              </div>
+              <ion-item class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" click-for-options ng-if="displayMode>0">
+                  <img ng-src="{{entry.url | favicon}}">
+                  <h2>{{entry.title}}</h2>
+                  <p>{{entry.remark}}</p>
+                <ion-option-button class="button-positive" ng-click="editEntry(entry.id)">
+                  编辑
+                </ion-option-button>
+                <ion-option-button class="button-assertive" ng-click="removeEntry(entry.id)">
+                  删除
+                </ion-option-button>
+              </ion-item>
 
               <div class="item" ng-if="displayMode==0">
                 <h2>{{entry.title}}</h2>
@@ -25,13 +30,12 @@
                 </span>
               </div>
 
-              </a>
           </div>
         </div>
       </div>
-    </div>
+    </ion-list>
   </ion-content>
-  <button class="button button-float button-positive" ng-click="addEntry()">
+  <button class="button button-float button-positive" ng-click="showCreateModal()">
     <i class="icon ion-plus"></i>
   </button>
 </ion-view>

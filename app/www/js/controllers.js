@@ -50,11 +50,37 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('MainCtrl', function($scope, $stateParams, $ionicTabsDelegate) {
+.controller('MainCtrl', function($scope, $stateParams, $ionicTabsDelegate,
+    $rootScope, UserFavorite, UserProfile, UserEntry, UI) {
   $scope.onSwipeLeft = function() {
     var index = $ionicTabsDelegate.selectedIndex();
     $ionicTabsDelegate.select((index+1) % 3);
   }
+
+  $rootScope.loading = true;
+
+  UserProfile.setting().then(function(results) {
+    $rootScope.$emit('bmDisplayChanged', results.display_style);
+    var arr = UserProfile.getBmStyle(results.layout_style);
+    $rootScope.bmColumns = arr[0];
+    $rootScope.bmClass = arr[1];
+    UserEntry.query({id: UserProfile.getProfile().user_id}, function(results) {
+      $rootScope.loading = false;
+      $rootScope.entries = results;
+      $rootScope.$broadcast('entryLoadingCompleted');
+    }, function() {
+      $rootScope.loading = false;
+      UI.toast('加载书签失败');
+    });
+  }, function() {
+    $rootScope.loading = false;
+    UI.toast('加载设置失败');
+  });
+
+  UserFavorite.query({id: UserProfile.getProfile().user_id}).$promise.then(function(results) {
+    $rootScope.favorites = results;
+  });
+
 })
 
 .controller('ExploreCtrl', function($scope, Favorite) {
@@ -64,14 +90,53 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, UserEntry, chunk, UserProfile, UI) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $ionicModal,
+      Entry, UserEntry, chunk, UserProfile, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
+  $scope.newEntry = {};
+
+  $ionicModal.fromTemplateUrl('templates/create.html', {
+    scope: $scope,
+    animation: 'jelly'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
+
+  $scope.showCreateModal = function() {
+    $scope.modal.show();
+  }
 
   $scope.addEntry = function() {
-
+    var entry = new Entry({
+      title: $scope.newEntry.title,
+      url: $scope.newEntry.url,
+      remark: $scope.newEntry.remark,
+      belong: $scope.newEntry.belong
+    });
+    // entry.$save(function(user, putResponseHeaders) {
+    //   console.log(user);
+    //   console.log(putResponseHeaders);
+    // });
+    // $scope.modal.hide();
   }
+
+  $scope.editEntry = function(entryId) {
+    console.log('edit '+entryId);
+  }
+
+  $scope.removeEntry = function(entryId) {
+    console.log('remove '+entryId);
+  }
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  }
+
+  $scope.$on('entryLoadingCompleted', function(){
+    $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+  });
 
   $rootScope.$on('bmLayoutChanged', function(e, layoutStyle) {
     arr = UserProfile.getBmStyle(layoutStyle);
@@ -85,23 +150,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     else $scope.displayMode = 1;
   });
 
-  UserProfile.setting().then(function(results) {
-    $rootScope.$emit('bmDisplayChanged', results.display_style);
-    arr = UserProfile.getBmStyle(results.layout_style);
-    $scope.bmClass = arr[1];
-    UserEntry.query({id: UserProfile.getProfile().user_id}, function(results) {
-      $scope.loading = false;
-      $rootScope.entries = results;
-      $scope.chunks = chunk(results, arr[0]);
-    }, function() {
-      $scope.loading = false;
-      UI.toast('加载书签失败');
-    });
-  }, function() {
-    $scope.loading = false;
-    UI.toast('加载设置失败');
-  });
-
 })
 
 .controller('FavoriteCtrl', function($scope, $stateParams, Favorite, UserFavorite, Entry,
@@ -113,13 +161,13 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal = modal;
   });
 
-  UserFavorite.query({id: UserProfile.getProfile().user_id}, function(results) {
-    $scope.favorites = results;
-  });
-
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
   });
+
+  $scope.closeModal = function() {
+    $scope.modal.hide();
+  }
 
   $scope.showFavorite = function(id) {
     Favorite.get({id: id}, function(results) {
