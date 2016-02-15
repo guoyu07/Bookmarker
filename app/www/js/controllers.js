@@ -51,10 +51,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('MainCtrl', function($scope, $stateParams, $ionicTabsDelegate,
-    $rootScope, UserFavorite, UserProfile, UserEntry, UI) {
+  $rootScope, UserFavorite, UserProfile, UserEntry, UI) {
   $scope.onSwipeLeft = function() {
     var index = $ionicTabsDelegate.selectedIndex();
-    $ionicTabsDelegate.select((index+1) % 3);
+    $ionicTabsDelegate.select((index + 1) % 3);
   }
 
   $rootScope.loading = true;
@@ -65,7 +65,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     var arr = UserProfile.getBmStyle(results.layout_style);
     $rootScope.bmColumns = arr[0];
     $rootScope.bmClass = arr[1];
-    UserEntry.query({id: UserProfile.getProfile().user_id}, function(results) {
+    UserEntry.query({
+      id: UserProfile.getProfile().user_id
+    }, function(results) {
       $rootScope.loading = false;
       $rootScope.entries = results;
       $rootScope.$broadcast('entryLoadingCompleted');
@@ -78,7 +80,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     UI.toast('加载设置失败');
   });
 
-  UserFavorite.query({id: UserProfile.getProfile().user_id}).$promise.then(function(results) {
+  UserFavorite.query({
+    id: UserProfile.getProfile().user_id
+  }).$promise.then(function(results) {
     $rootScope.favorites = results;
   });
 
@@ -91,12 +95,14 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $ionicModal,
-      Entry, UserEntry, chunk, UserProfile, UI) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal,
+  Entry, UserEntry, chunk, UserProfile, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
   $scope.newEntry = {};
+  $scope.createMode = true; // false if updateMode
+  $scope.selectedEntry = null;
 
   $ionicModal.fromTemplateUrl('templates/create.html', {
     scope: $scope,
@@ -105,34 +111,72 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal = modal;
   });
 
-  $scope.showCreateModal = function() {
-    $scope.modal.show();
+  $scope.quickAdd = function(isValid) {
+    if (isValid) {
+
+    }
   }
 
-  $scope.quickAdd = function(quickUrl) {
-    console.log(quickUrl);
+  $scope.submitEntry = function(isValid) {
+    if($scope.createMode == true)
+      $scope.addEntry(isValid);
+    else
+      $scope.updateEntry(isValid);
   }
 
-  $scope.addEntry = function() {
-    var entry = new Entry({
-      title: $scope.newEntry.title,
-      url: $scope.newEntry.url,
-      remark: $scope.newEntry.remark,
-      belong: $scope.newEntry.belong
-    });
-    entry.$save(function(entry, putResponseHeaders) {
-      $rootScope.entries.push(entry);
-      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
-    });
-    $scope.modal.hide();
+  $scope.addEntry = function(isValid) {
+    if (isValid) {
+      var entry = new Entry({
+        title: $scope.newEntry.title,
+        url: $scope.newEntry.url,
+        remark: $scope.newEntry.remark,
+        belong: $scope.newEntry.belong
+      });
+      entry.$save(function(entry, putResponseHeaders) {
+        $rootScope.entries.push(entry);
+        $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+        $scope.modal.hide();
+      }, function() {
+        UI.toast('添加失败');
+      });
+    }
+  }
+
+  $scope.updateEntry = function(isValid) {
+    if (isValid) {
+      if ($scope.selectedEntry != null) {
+        $scope.selectedEntry.title = $scope.newEntry.title;
+        $scope.selectedEntry.url = $scope.newEntry.url;
+        $scope.selectedEntry.remark = $scope.newEntry.remark;
+        $scope.selectedEntry.belong = $scope.newEntry.belong;
+        Entry.update({id: $scope.selectedEntry.id}, $scope.selectedEntry, function() {
+          $scope.closeModal();
+        }, function(){
+          UI.toast('更新失败');
+        });
+      } else {
+        UI.toast('更新失败');
+      }
+    }
   }
 
   $scope.editEntry = function(entryId) {
-    console.log('edit '+entryId);
+    $scope.createMode = false;
+    var found = $filter('filter')($rootScope.entries, {id: entryId}, true);
+    if(found.length) {
+      $scope.selectedEntry = found[0];
+      $scope.newEntry.title = $scope.selectedEntry.title;
+      $scope.newEntry.url = $scope.selectedEntry.url;
+      $scope.newEntry.remark = $scope.selectedEntry.remark;
+      $scope.newEntry.belong = $scope.selectedEntry.belong;
+    }
+    $scope.modal.show();
   }
 
   $scope.removeEntry = function(entry) {
-    Entry.remove({id: entry.id}, function() {
+    Entry.remove({
+      id: entry.id
+    }, function() {
       console.log($rootScope.entries.splice($rootScope.entries.indexOf(entry), 1));
       $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
       UI.toast('删除成功');
@@ -141,11 +185,17 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     });
   }
 
+  $scope.showCreateModal = function() {
+    $scope.createMode = true;
+    $scope.newEntry = {};
+    $scope.modal.show();
+  }
+
   $scope.closeModal = function() {
     $scope.modal.hide();
   }
 
-  $scope.$on('entryLoadingCompleted', function(){
+  $scope.$on('entryLoadingCompleted', function() {
     $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
   });
 
@@ -160,15 +210,15 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 
   $rootScope.$on('bmDisplayChanged', function(e, displayStyle) {
-    if(displayStyle == "Detail") $scope.displayMode = 2;
-    else if(displayStyle == "Short") $scope.displayMode = 0;
+    if (displayStyle == "Detail") $scope.displayMode = 2;
+    else if (displayStyle == "Short") $scope.displayMode = 0;
     else $scope.displayMode = 1;
   });
 
 })
 
 .controller('FavoriteCtrl', function($scope, $stateParams, Favorite, UserFavorite, Entry,
-      UserProfile, chunk, $ionicModal) {
+  UserProfile, chunk, $ionicModal) {
   $ionicModal.fromTemplateUrl('templates/favor.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -185,7 +235,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 
   $scope.showFavorite = function(id) {
-    Favorite.get({id: id}, function(results) {
+    Favorite.get({
+      id: id
+    }, function(results) {
       $scope.favor = results;
       $scope.favorites = chunk(results.entries, 3);
       $scope.modal.show();

@@ -76,7 +76,7 @@ class Entry(models.Model):
 
     title = models.CharField(max_length=128, verbose_name='标题', default='未命名')
     url = models.URLField(verbose_name='url')
-    thumbnail = models.ImageField(upload_to=UploadToDir('thumbnail'), verbose_name='缩略图', blank=True)
+    thumbnail = models.ImageField(upload_to=UploadToDir('thumbnail'), verbose_name='缩略图', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     views = models.IntegerField(verbose_name='点击量', default=0)
