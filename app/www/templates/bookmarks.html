@@ -1,6 +1,17 @@
-<ion-view view-title="书签">
+<ion-view view-title="书签" ng-controller="BookmarkCtrl">
   <ion-spinner icon="android" ng-show="$root.loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
   <ion-content class="has-tabs-top">
+    <form name="addForm" ng-submit="quickAdd(quickUrl)">
+      <div class="bar bar-header item-input-inset" ng-show="$root.quickMode">
+          <label class="item-input-wrapper">
+            <i class="icon ion-clipboard placeholder-icon"></i>
+            <input type="url" placeholder="在这里粘贴你的URL..." ng-model="quickUrl" required>
+          </label>
+          <button class="button button-positive" type="submit">
+            添加
+          </button>
+      </div>
+    </form>
     <ion-list class="list">
       <div class="row responsive-sm" ng-repeat="rows in chunks">
         <div class="{{bmClass}}" ng-repeat="entry in rows">

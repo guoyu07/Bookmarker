@@ -18,7 +18,7 @@ class UserAdmin(UserAdmin):
 
 
 class SettingAdmin(admin.ModelAdmin):
-    list_display = ('display_style', 'layout_style', 'hot_key', 'owner')
+    list_display = ('display_style', 'layout_style', 'quick_mode', 'owner')
 
 
 class EntryAdmin(admin.ModelAdmin):

@@ -26,7 +26,7 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
 class SettingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Setting
-        fields = ('id', 'display_style', 'layout_style', 'hot_key')
+        fields = ('id', 'display_style', 'layout_style', 'quick_mode')
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):

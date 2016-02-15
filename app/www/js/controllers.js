@@ -60,6 +60,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $rootScope.loading = true;
 
   UserProfile.setting().then(function(results) {
+    $rootScope.quickMode = results.quick_mode;
     $rootScope.$emit('bmDisplayChanged', results.display_style);
     var arr = UserProfile.getBmStyle(results.layout_style);
     $rootScope.bmColumns = arr[0];
@@ -108,6 +109,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal.show();
   }
 
+  $scope.quickAdd = function(quickUrl) {
+    console.log(quickUrl);
+  }
+
   $scope.addEntry = function() {
     var entry = new Entry({
       title: $scope.newEntry.title,
@@ -115,11 +120,11 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
       remark: $scope.newEntry.remark,
       belong: $scope.newEntry.belong
     });
-    // entry.$save(function(user, putResponseHeaders) {
-    //   console.log(user);
-    //   console.log(putResponseHeaders);
-    // });
-    // $scope.modal.hide();
+    entry.$save(function(entry, putResponseHeaders) {
+      $rootScope.entries.push(entry);
+      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+    });
+    $scope.modal.hide();
   }
 
   $scope.editEntry = function(entryId) {
@@ -138,6 +143,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
   });
 
+  $rootScope.$on('bmAddModeChanged', function(e, isOpen) {
+
+  });
+
   $rootScope.$on('bmLayoutChanged', function(e, layoutStyle) {
     arr = UserProfile.getBmStyle(layoutStyle);
     $scope.chunks = chunk($rootScope.entries, arr[0]);
@@ -153,7 +162,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('FavoriteCtrl', function($scope, $stateParams, Favorite, UserFavorite, Entry,
-      UserProfile, $ionicModal) {
+      UserProfile, chunk, $ionicModal) {
   $ionicModal.fromTemplateUrl('templates/favor.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -172,6 +181,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.showFavorite = function(id) {
     Favorite.get({id: id}, function(results) {
       $scope.favor = results;
+      $scope.favorites = chunk(results.entries, 3);
       $scope.modal.show();
     })
   }
@@ -186,11 +196,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.layoutStyle = UserProfile.getLayoutStyle(results.layout_style);
   });
 
-  $scope.changeDisplayStyle = function(displayStyle) {
-    var ds = UserProfile.getDisplayStyle(displayStyle);
-    setting.display_style = ds;
-    $rootScope.$emit('bmDisplayChanged', ds);
-
+  $scope.updateSetting = function() {
     Setting.update({
       id: setting.id
     }, setting, function() {}, function() {
@@ -198,16 +204,27 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     });
   }
 
+  $scope.changeDisplayStyle = function(displayStyle) {
+    var ds = UserProfile.getDisplayStyle(displayStyle);
+    setting.display_style = ds;
+    $rootScope.$emit('bmDisplayChanged', ds);
+
+    $scope.updateSetting();
+  }
+
   $scope.changeLayoutStyle = function(layoutStyle) {
     var ls = UserProfile.getLayoutStyle(layoutStyle);
     setting.layout_style = ls;
     $rootScope.$emit('bmLayoutChanged', ls);
 
-    Setting.update({
-      id: setting.id
-    }, setting, function() {}, function() {
-      UI.toast("修改失败");
-    });
+    $scope.updateSetting();
+  }
+
+  $scope.changeQuickMode = function(quickMode) {
+    $rootScope.quickMode = quickMode;
+    setting.quick_mode = quickMode;
+
+    $scope.updateSetting();
   }
 
 })

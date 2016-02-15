@@ -5,8 +5,8 @@
   </ion-header-bar>
   <ion-content>
     <div class="list">
-      <div class="row responsive-sm" >
-        <div class="col-33" ng-repeat="entry in favor.entries">
+      <div class="row responsive-sm" ng-repeat="rows in favorites">
+        <div class="col-33" ng-repeat="entry in rows" >
           <div class="card bookmark">
             <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
             <div class="item item-thumbnail-left">

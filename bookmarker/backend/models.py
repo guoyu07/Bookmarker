@@ -38,7 +38,7 @@ class Setting(models.Model):
 
     display_style = models.CharField(max_length=16, verbose_name='显示风格', choices=DISPLAYS, default='Medium')
     layout_style = models.CharField(max_length=16, verbose_name='布局风格', choices=LAYOUTS, default='Medium')
-    hot_key = models.CharField(max_length=16, verbose_name='快捷键', blank=True)
+    quick_mode = models.BooleanField(verbose_name='快捷添加', default=False)
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='setting',
                      on_delete=models.CASCADE, verbose_name='所属用户')
 
@@ -74,7 +74,7 @@ class Entry(models.Model):
         ('Low', '低')
     )
 
-    title = models.CharField(max_length=128, verbose_name='标题')
+    title = models.CharField(max_length=128, verbose_name='标题', default='未命名')
     url = models.URLField(verbose_name='url')
     thumbnail = models.ImageField(upload_to=UploadToDir('thumbnail'), verbose_name='缩略图', blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
