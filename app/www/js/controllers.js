@@ -131,8 +131,14 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     console.log('edit '+entryId);
   }
 
-  $scope.removeEntry = function(entryId) {
-    console.log('remove '+entryId);
+  $scope.removeEntry = function(entry) {
+    Entry.remove({id: entry.id}, function() {
+      console.log($rootScope.entries.splice($rootScope.entries.indexOf(entry), 1));
+      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+      UI.toast('删除成功');
+    }, function() {
+      UI.toast('删除失败');
+    });
   }
 
   $scope.closeModal = function() {
