@@ -76,8 +76,9 @@ class EntryViewSet(viewsets.ModelViewSet):
             # 检查收藏夹是否属于请求用户
             if Favorite.objects.filter(created_by=request.user.id,
                 id=request.data['belong']).exists():
-                Entry.objects.create(**serializer.validated_data)
-                return Response(make_status(True))
+                entry = Entry.objects.create(**serializer.validated_data)
+                serialized_entry = EntrySerializer(entry)
+                return Response(serialized_entry.data, status=status.HTTP_201_CREATED)
             return Response(make_status(False, reason='拒绝访问'),
                                 status=status.HTTP_403_FORBIDDEN)
         else:

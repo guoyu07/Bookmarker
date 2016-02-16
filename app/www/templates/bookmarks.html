@@ -1,6 +1,7 @@
 <ion-view view-title="书签" ng-controller="BookmarkCtrl">
   <ion-spinner icon="android" ng-show="$root.loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
   <ion-content class="has-tabs-top">
+    <ion-refresher on-refresh="doRefresh()"></ion-refresher>
     <form name="addForm" ng-submit="quickAdd(addForm.$valid)" autocomplete="off" novalidate>
       <div class="bar bar-header item-input-inset" ng-show="$root.quickMode">
           <label class="item-input-wrapper" ng-class="{true: 'error-input'}[addForm.$submitted && addForm.url.$error.url]">

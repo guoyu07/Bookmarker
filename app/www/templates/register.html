@@ -1,0 +1,35 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-positive fix-buttons">
+    <a class="button" ng-click="cancelRegister()">取消</a>
+    <h1 class="title">
+      注册用户
+    </h1>
+  </ion-header-bar>
+  <ion-content>
+    <form name="signUpForm" autocomplete="off" ng-submit="register(signUpForm.$valid)" novalidate>
+      <div ng-show="registerErrorMessages.length">
+        <button class="button button-full button-assertive" ng-repeat="msg in registerErrorMessages">{{msg}}</button>
+      </div>
+      <div class="list padding">
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">用户名
+          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.username.$error.required">(请填写用户名)</span>
+          </span>
+          <input type="text" ng-model="register.username" name="username" placeholder="在此输入你的用户名..." required="">
+        </label>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">密码
+          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.password.$error.required">(请填写密码)</span>
+          </span>
+          <input type="password" ng-model="register.password" name="password" placeholder="在此输入你的密码..." required="">
+        </label>
+        <label class="item item-input item-stacked-label">
+          <span class="input-label">邮箱</span>
+          <input type="email" ng-model="register.email" name="email" placeholder="在此输入你的邮箱...">
+        </label>
+        <div class="spacer" style="height: 40px;"></div>
+        <button class="button button-positive button-block" type="submit">注册</button>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>

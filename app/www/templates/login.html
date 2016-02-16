@@ -1,19 +1,23 @@
 <ion-view view-title="登录">
   <ion-content overflow-scroll="true" padding="true" class="has-header">
-    <form ng-submit="login()" ng-controller="LoginCtrl">
+    <form name="loginForm" ng-submit="login(loginForm.$valid)" ng-controller="LoginCtrl" novalidate>
+      <div ng-show="loginForm.$submitted">
+        <button class="button button-full button-assertive" ng-if="loginForm.username.$error.required==true">请填写用户名</button>
+        <button class="button button-full button-assertive" ng-if="loginForm.password.$error.required==true">请填写密码</button>
+      </div>
       <div class="list">
         <label class="item item-input">
           <span class="input-label">用户名</span>
-          <input type="text" ng-model="username">
+          <input type="text" ng-model="username" name="username" required="" />
         </label>
         <label class="item item-input">
           <span class="input-label">密码</span>
-          <input type="password" ng-model="password">
+          <input type="password" ng-model="password" name="password" required="" />
         </label>
         <ion-toggle toggle-class="toggle-positive" ng-model="rememberMe">记住我</ion-toggle>
         <div class="spacer" style="height: 40px;"></div>
         <button class="button button-positive button-block " type="submit">登录</button>
-        <a href="#/app/signup" class="button button-positive button-clear button-block ">点击注册一个新用户</a>
+        <a ng-click="openRegister()" class="button button-positive button-clear button-block ">点击注册一个新用户</a>
       </div>
     </form>
   </ion-content>

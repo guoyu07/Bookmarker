@@ -1,10 +1,12 @@
 <ion-modal-view>
   <ion-header-bar class="bar-positive fix-buttons">
     <a class="button" ng-click="closeModal()">取消</a>
-    <h1 class="title">新建书签</h1>
+    <h1 class="title">
+      <span>{{createMode?'创建书签' : '编辑书签'}}</span>
+    </h1>
   </ion-header-bar>
   <ion-content>
-    <form name="entryForm" ng-submit="submitEntry(entryForm.$valid)" novalidate>
+    <form name="entryForm" autocomplete="off" ng-submit="submitEntry(entryForm.$valid)" novalidate>
       <div ng-show="entryForm.$submitted">
         <button class="button button-full button-assertive" ng-show="entryForm.url.$error.url || entryForm.url.$error.required">非法url地址</button>
         <button class="button button-full button-assertive" ng-show="entryForm.title.$error.required">请填写书签标题</button>
@@ -32,7 +34,9 @@
         </label>
       </div>
       <div class="padding">
-        <button class="button button-block button-positive activated" type="submit">创建书签</button>
+        <button class="button button-block button-positive activated" type="submit">
+          保存
+        </button>
       </div>
     </form>
   </ion-content>

@@ -15,13 +15,29 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state, AuthService,
+.controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state, $ionicModal, AuthService,
   Authentication, User, Setting, UserProfile, UI) {
+  $scope.register = {};
+  $scope.registerErrorMessages = [];
 
-  $scope.login = function() {
-    username = $scope.username;
-    password = $scope.password;
+  $ionicModal.fromTemplateUrl('templates/register.html', {
+    scope: $scope,
+    animation: 'fadeIn'
+  }).then(function(modal) {
+    $scope.modal = modal;
+  });
 
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+  $scope.login = function(isValid) {
+    if (isValid) {
+      $scope.doLogin($scope.username, $scope.password, $scope.rememberMe==true);
+    }
+  }
+
+  $scope.doLogin = function(username, password, rememberMe) {
     Authentication.login(username, password, function(response, status, headers, config) {
       var token = response.data.token;
       AuthService.save(token);
@@ -30,16 +46,35 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     }, function(response, status, headers, config) {
       UI.toast('登录失败');
     });
-    localStorage.setItem('rememberMe', $scope.rememberMe);
+    localStorage.setItem('rememberMe', rememberMe);
   }
 
-  $scope.register = function() {
-    var user = new User({
-      username: $scope.username,
-      password: $scope.password,
-    });
-    user.$save();
-    $scope.login($scope.username, $scope.password);
+  $scope.openRegister = function() {
+    $scope.modal.show();
+  }
+
+  $scope.cancelRegister = function() {
+    $scope.modal.hide();
+  }
+
+  $scope.register = function(isValid) {
+    if (isValid) {
+      $scope.registerErrorMessages = [];
+      var user = new User({
+        username: $scope.register.username,
+        password: $scope.register.password,
+        email: $scope.register.email
+      });
+      user.$save(function(user, putResponseHeaders){
+        $scope.doLogin($scope.register.username, $scope.register.password, false);
+        $scope.modal.hide();
+      }, function(response) {
+        for(var key in response.data) {
+          $scope.registerErrorMessages = $scope.registerErrorMessages.concat(response.data[key])
+        }
+        console.log($scope.registerErrorMessages);
+      });
+    }
   }
 
   $scope.logout = function() {
@@ -104,12 +139,29 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.createMode = true; // false if updateMode
   $scope.selectedEntry = null;
 
-  $ionicModal.fromTemplateUrl('templates/create.html', {
+  $ionicModal.fromTemplateUrl('templates/edit.html', {
     scope: $scope,
     animation: 'jelly'
   }).then(function(modal) {
     $scope.modal = modal;
   });
+
+  $scope.$on('$destroy', function() {
+    $scope.modal.remove();
+  });
+
+  $scope.doRefresh = function() {
+    UserEntry.query({
+      id: UserProfile.getProfile().user_id
+    }, function(results) {
+      $rootScope.entries = results;
+      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+      $rootScope.$broadcast('scroll.refreshComplete');
+    }, function() {
+      $rootScope.$broadcast('scroll.refreshComplete');
+      UI.toast('加载书签失败');
+    });
+  }
 
   $scope.quickAdd = function(isValid) {
     if (isValid) {
