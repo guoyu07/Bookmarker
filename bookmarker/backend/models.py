@@ -69,9 +69,9 @@ class Favorite(models.Model):
 
 class Entry(models.Model):
     PRIORITIES = (
-        ('High', '高'),
-        ('Medium', '中'),
-        ('Low', '低')
+        (1, '高'),
+        (0, '中'),
+        (-1, '低')
     )
 
     title = models.CharField(max_length=128, verbose_name='标题', default='未命名')
@@ -80,7 +80,7 @@ class Entry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     views = models.IntegerField(verbose_name='点击量', default=0)
-    priority = models.CharField(max_length=8, verbose_name='优先级', choices=PRIORITIES, default='Medium')
+    priority = models.IntegerField(verbose_name='优先级', choices=PRIORITIES, default=0)
     remarks = models.CharField(max_length=1024, verbose_name='备注', blank=True)
     is_public = models.BooleanField(verbose_name='是否公开', default=False)
     belong = models.ForeignKey(Favorite, on_delete=models.CASCADE, related_name='entries',

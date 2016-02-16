@@ -18,7 +18,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 .controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state, $ionicModal, AuthService,
   Authentication, User, Setting, UserProfile, UI) {
   $scope.register = {};
-  $scope.registerErrorMessages = [];
+  $scope.registerErrMsgs = {};
 
   $ionicModal.fromTemplateUrl('templates/register.html', {
     scope: $scope,
@@ -50,6 +50,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 
   $scope.openRegister = function() {
+    $scope.registerErrMsgs = {};
     $scope.modal.show();
   }
 
@@ -59,7 +60,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.register = function(isValid) {
     if (isValid) {
-      $scope.registerErrorMessages = [];
       var user = new User({
         username: $scope.register.username,
         password: $scope.register.password,
@@ -69,10 +69,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
         $scope.doLogin($scope.register.username, $scope.register.password, false);
         $scope.modal.hide();
       }, function(response) {
-        for(var key in response.data) {
-          $scope.registerErrorMessages = $scope.registerErrorMessages.concat(response.data[key])
-        }
-        console.log($scope.registerErrorMessages);
+        $scope.registerErrMsgs = response.data;
       });
     }
   }
@@ -138,6 +135,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.newEntry = {};
   $scope.createMode = true; // false if updateMode
   $scope.selectedEntry = null;
+  $scope.priorityOptions = [{val: '1', name:"高"},{val: '0', name:"默认"},{val: '-1', name:"低"}];
 
   $ionicModal.fromTemplateUrl('templates/edit.html', {
     scope: $scope,
@@ -150,65 +148,54 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal.remove();
   });
 
-  $scope.doRefresh = function() {
-    UserEntry.query({
-      id: UserProfile.getProfile().user_id
-    }, function(results) {
-      $rootScope.entries = results;
-      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
-      $rootScope.$broadcast('scroll.refreshComplete');
-    }, function() {
-      $rootScope.$broadcast('scroll.refreshComplete');
-      UI.toast('加载书签失败');
-    });
-  }
-
   $scope.quickAdd = function(isValid) {
     if (isValid) {
 
     }
   }
 
-  $scope.submitEntry = function(isValid) {
-    if($scope.createMode == true)
-      $scope.addEntry(isValid);
-    else
-      $scope.updateEntry(isValid);
-  }
-
-  $scope.addEntry = function(isValid) {
+  $scope.submitEntry = function(entryForm) {
+    var isValid = entryForm.$valid;
     if (isValid) {
-      var entry = new Entry({
-        title: $scope.newEntry.title,
-        url: $scope.newEntry.url,
-        remark: $scope.newEntry.remark,
-        belong: $scope.newEntry.belong
-      });
-      entry.$save(function(entry, putResponseHeaders) {
-        $rootScope.entries.push(entry);
-        $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
-        $scope.modal.hide();
-      }, function() {
-        UI.toast('添加失败');
-      });
+      if($scope.createMode == true)
+        $scope.addEntry();
+      else
+        $scope.updateEntry();
+      entryForm.$submitted = false;
     }
   }
 
-  $scope.updateEntry = function(isValid) {
-    if (isValid) {
-      if ($scope.selectedEntry != null) {
-        $scope.selectedEntry.title = $scope.newEntry.title;
-        $scope.selectedEntry.url = $scope.newEntry.url;
-        $scope.selectedEntry.remark = $scope.newEntry.remark;
-        $scope.selectedEntry.belong = $scope.newEntry.belong;
-        Entry.update({id: $scope.selectedEntry.id}, $scope.selectedEntry, function() {
-          $scope.closeModal();
-        }, function(){
-          UI.toast('更新失败');
-        });
-      } else {
+  $scope.addEntry = function() {
+    var entry = new Entry({
+      title: $scope.newEntry.title,
+      url: $scope.newEntry.url,
+      remark: $scope.newEntry.remark,
+      priority: $scope.newEntry.priority || 0,
+      belong: $scope.newEntry.belong
+    });
+    entry.$save(function(entry, putResponseHeaders) {
+      $rootScope.entries.push(entry);
+      $scope.loadEntries();
+      $scope.modal.hide();
+    }, function() {
+      UI.toast('添加失败');
+    });
+  }
+
+  $scope.updateEntry = function() {
+    if ($scope.selectedEntry != null) {
+      angular.extend($scope.selectedEntry, $scope.newEntry)
+      Entry.update({id: $scope.selectedEntry.id}, $scope.selectedEntry, function() {
+        var index = $rootScope.entries.map(function(x) {return x.id; }).indexOf($scope.selectedEntry.id);
+        $scope.selectedEntry.priority = parseInt($scope.selectedEntry.priority);
+        $rootScope.entries[index] = $scope.selectedEntry;
+        $scope.loadEntries();
+        $scope.closeModal();
+      }, function(){
         UI.toast('更新失败');
-      }
+      });
+    } else {
+      UI.toast('更新失败');
     }
   }
 
@@ -220,7 +207,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
       $scope.newEntry.title = $scope.selectedEntry.title;
       $scope.newEntry.url = $scope.selectedEntry.url;
       $scope.newEntry.remark = $scope.selectedEntry.remark;
-      $scope.newEntry.belong = $scope.selectedEntry.belong;
+      $scope.newEntry.priority = $scope.selectedEntry.priority.toString();
+      $scope.newEntry.belong = $scope.selectedEntry.belong.toString();
     }
     $scope.modal.show();
   }
@@ -229,8 +217,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     Entry.remove({
       id: entry.id
     }, function() {
-      console.log($rootScope.entries.splice($rootScope.entries.indexOf(entry), 1));
-      $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+      $rootScope.entries.splice($rootScope.entries.indexOf(entry), 1);
+      $scope.loadEntries();
       UI.toast('删除成功');
     }, function() {
       UI.toast('删除失败');
@@ -247,8 +235,18 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal.hide();
   }
 
+  $scope.loadEntries = function() {
+    console.log('load');
+    $scope.chunks = chunk($filter('orderBy')($rootScope.entries, '-priority', false), $rootScope.bmColumns);
+  }
+
+  $scope.doRefresh = function() {
+    $scope.loadEntries();
+    $rootScope.$broadcast('scroll.refreshComplete');
+  }
+
   $scope.$on('entryLoadingCompleted', function() {
-    $scope.chunks = chunk($rootScope.entries, $rootScope.bmColumns);
+    $scope.loadEntries();
   });
 
   $rootScope.$on('bmAddModeChanged', function(e, isOpen) {

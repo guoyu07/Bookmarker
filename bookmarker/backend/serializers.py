@@ -7,7 +7,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'is_public', 'created_by', 'remarks')
+        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'priority', 'is_public', 'created_by', 'remarks')
         extra_kwargs = {
             'is_public': {'read_only': True},
             'created_by': {'lookup_field': 'id'}
@@ -50,11 +50,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'username', 'avatar', 'email', 'password', 'setting', 'favorites')
         extra_kwargs = {'password': {'write_only': True}}
 
-
-    def validate_username(self, username):
-        if not (2 <= len(username) <= 16):
-            raise serializers.ValidationError("用户名长度太短")
-        return username
+    def validate(self, data):
+        if not (2 <= len(data['username']) <= 12):
+            raise serializers.ValidationError({'username': "用户名长度应在2~12位"})
+        if not (6 <= len(data['password']) <= 18):
+            raise serializers.ValidationError({'password': "密码长度应在6~18位"})
+        return data
 
     def create(self, validated_data):
         user = User(**validated_data)

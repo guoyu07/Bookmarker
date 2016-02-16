@@ -1,16 +1,16 @@
-<ion-view view-title="书签" ng-controller="BookmarkCtrl">
+<ion-view view-title="书签">
   <ion-spinner icon="android" ng-show="$root.loading" style="position:absolute;top:50%;left:50%;"></ion-spinner>
   <ion-content class="has-tabs-top">
     <ion-refresher on-refresh="doRefresh()"></ion-refresher>
     <form name="addForm" ng-submit="quickAdd(addForm.$valid)" autocomplete="off" novalidate>
       <div class="bar bar-header item-input-inset" ng-show="$root.quickMode">
-          <label class="item-input-wrapper" ng-class="{true: 'error-input'}[addForm.$submitted && addForm.url.$error.url]">
-            <i class="icon ion-clipboard placeholder-icon"></i>
-            <input ng-model="newEntry.qucikUrl" type="url" placeholder="在这里粘贴你的URL..." name="url" required="" />
-          </label>
-          <button class="button button-positive" type="submit">
-            添加
-          </button>
+        <label class="item-input-wrapper" ng-class="{true: 'error-input'}[addForm.$submitted && addForm.url.$error.url]">
+          <i class="icon ion-clipboard placeholder-icon"></i>
+          <input ng-model="newEntry.qucikUrl" type="url" placeholder="在这里粘贴你的URL..." name="url" required="" />
+        </label>
+        <button class="button button-positive" type="submit">
+          添加
+        </button>
       </div>
     </form>
     <ion-list class="list">
@@ -18,29 +18,29 @@
         <div class="{{bmClass}}" ng-repeat="entry in rows">
           <div class="card bookmark">
 
-              <ion-item class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" click-for-options ng-if="displayMode>0">
-                  <img ng-src="{{entry.url | favicon}}">
-                  <h2>{{entry.title}}</h2>
-                  <p>{{entry.remark}}</p>
-                <ion-option-button class="button-positive" ng-click="editEntry(entry.id)">
-                  编辑
-                </ion-option-button>
-                <ion-option-button class="button-assertive" ng-click="removeEntry(entry)">
-                  删除
-                </ion-option-button>
-              </ion-item>
+            <ion-item class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" click-for-options ng-if="displayMode>0">
+              <img ng-src="{{entry.url | favicon}}">
+              <h2>{{entry.title}}</h2>
+              <p>{{entry.remark}}</p>
+              <ion-option-button class="button-positive" ng-click="editEntry(entry.id)">
+                编辑
+              </ion-option-button>
+              <ion-option-button class="button-assertive" ng-click="removeEntry(entry)">
+                删除
+              </ion-option-button>
+            </ion-item>
 
-              <div class="item" ng-if="displayMode==0">
-                <h2>{{entry.title}}</h2>
-                <p>{{entry.url}}</p>
-              </div>
+            <div class="item" ng-if="displayMode==0">
+              <h2>{{entry.title}}</h2>
+              <p>{{entry.url}}</p>
+            </div>
 
-              <div class="item item-text-wrap" ng-if="displayMode>1">
-                {{entry.created_at|date:'short' }}
-                <span class="item-note">
+            <div class="item item-text-wrap" ng-if="displayMode>1">
+              {{entry.created_at|date:'short' }}
+              <span class="item-note">
                   {{entry.created_by}}
                 </span>
-              </div>
+            </div>
 
           </div>
         </div>

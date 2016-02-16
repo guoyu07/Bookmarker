@@ -8,6 +8,24 @@
     margin: 0px 10px;
   }
 }
+@media (min-width: 680px) {
+  .signUp {
+    top: 5%;
+    height: 65%;
+  }
+}
+.has-errors {
+  border-bottom: 3px solid #B83E2C;
+}
+.no-errors {
+  border-bottom: 3px solid green;
+}
+.error-container {
+  margin: 5px 0;
+}
+.error-container:last-child {
+  margin: 5px 0 0;
+}
 .error-input {
   background: #fee;
 }

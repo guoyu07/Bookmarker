@@ -1,4 +1,4 @@
-<ion-modal-view>
+<ion-modal-view class="signUp">
   <ion-header-bar class="bar-positive fix-buttons">
     <a class="button" ng-click="cancelRegister()">取消</a>
     <h1 class="title">
@@ -7,21 +7,24 @@
   </ion-header-bar>
   <ion-content>
     <form name="signUpForm" autocomplete="off" ng-submit="register(signUpForm.$valid)" novalidate>
-      <div ng-show="registerErrorMessages.length">
-        <button class="button button-full button-assertive" ng-repeat="msg in registerErrorMessages">{{msg}}</button>
-      </div>
+      <button ng-show="registerErrMsgs.username.length" class="button button-full button-assertive" ng-repeat="msg in registerErrMsgs.username">
+        {{msg}}
+      </button>
+      <button ng-show="registerErrMsgs.password.length" class="button button-full button-assertive" ng-repeat="msg in registerErrMsgs.password">
+        {{msg}}
+      </button>
       <div class="list padding">
         <label class="item item-input item-stacked-label">
           <span class="input-label">用户名
-          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.username.$error.required">(请填写用户名)</span>
+          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.username.$error.required">请填写用户名</span>
           </span>
-          <input type="text" ng-model="register.username" name="username" placeholder="在此输入你的用户名..." required="">
+          <input type="text" ng-model="register.username" name="username" maxlength="12" placeholder="在此输入你的用户名（长度2~12位）" required="">
         </label>
         <label class="item item-input item-stacked-label">
           <span class="input-label">密码
-          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.password.$error.required">(请填写密码)</span>
+          <span class="assertive" ng-show="signUpForm.$submitted && signUpForm.password.$error.required">请填写密码</span>
           </span>
-          <input type="password" ng-model="register.password" name="password" placeholder="在此输入你的密码..." required="">
+          <input type="password" ng-model="register.password" name="password" maxlength="18" placeholder="在此输入你的密码（长度6~18位）" required="">
         </label>
         <label class="item item-input item-stacked-label">
           <span class="input-label">邮箱</span>

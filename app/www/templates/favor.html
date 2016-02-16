@@ -8,13 +8,11 @@
       <div class="row responsive-sm" ng-repeat="rows in favorites">
         <div class="col-33" ng-repeat="entry in rows" >
           <div class="card bookmark">
-            <a href="{{entry.url}}" target="_blank" style="text-decoration: none;">
-            <div class="item item-thumbnail-left">
+            <ion-item ng-href="{{entry.url}}" class="item item-thumbnail-left" target="_blank" >
               <img ng-src="{{entry.url | favicon}}">
               <h2>{{entry.title}}</h2>
               <p>{{entry.remark}}</p>
-            </div>
-            </a>
+            </ion-item>
           </div>
         </div>
       </div>
