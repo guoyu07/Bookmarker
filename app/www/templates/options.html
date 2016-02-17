@@ -1,11 +1,20 @@
 <ion-popover-view>
   <ion-content>
     <div class="list">
-      <ion-item class="item">
+      <ion-item class="item" ng-href="{{deatailEntry.url}}" target="_blank">
+          打开
+      </ion-item>
+      <ion-item class="item" ng-click="editEntry(deatailEntry.id)">
+          编辑
+      </ion-item>
+      <ion-item class="item" ng-click="">
           分享
       </ion-item>
-      <ion-item class="item">
+      <ion-item class="item" ng-click="removeEntry(deatailEntry)">
           删除
+      </ion-item>
+      <ion-item class="item" ng-click="showDetail(deatailEntry)">
+          详细信息
       </ion-item>
     </div>
   </ion-content>

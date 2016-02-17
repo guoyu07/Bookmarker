@@ -18,7 +18,7 @@
         <div class="{{bmClass}}" ng-repeat="entry in rows">
           <div class="card bookmark">
 
-            <ion-item click-for-options ng-right-click="showOptions($event)" class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" ng-if="displayMode>0">
+            <ion-item click-for-options class="item item-thumbnail-left item-icon-right" ng-href="{{entry.url}}" target="_blank" ng-if="displayMode>0">
               <img ng-src="{{entry.url | favicon}}">
               <h2>{{entry.title}}</h2>
               <p>{{entry.remark}}</p>
@@ -28,6 +28,7 @@
               <ion-option-button class="button-assertive" ng-click="removeEntry(entry)">
                 删除
               </ion-option-button>
+              <i class="icon ion-android-more-vertical" ng-click="showOptions($event, entry)"></i>
             </ion-item>
 
             <div class="item" ng-if="displayMode==0">

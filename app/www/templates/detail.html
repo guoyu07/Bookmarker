@@ -1,0 +1,24 @@
+<ion-modal-view>
+  <ion-header-bar class="bar-positive fix-buttons">
+    <a class="button" ng-click="closeModal()">取消</a>
+    <h1 class="title">
+      {{deatailEntry.title}}
+    </h1>
+  </ion-header-bar>
+  <ion-content>
+    <div class="list list-inset">
+      <div class="item">
+        <b>创建者</b> <p>{{deatailEntry.created_by}}</p>
+      </div>
+      <div class="item">
+        <b>是否公开</b> <p>{{deatailEntry.is_public?'是':'否'}}</p>
+      </div>
+      <div class="item">
+        <b>创建时间</b> <p>{{deatailEntry.created_at| date:'short'}}</p>
+      </div>
+      <div class="item">
+        <b>修改时间</b> <p>{{deatailEntry.updated_at| date:'short'}}</p>
+      </div>
+    </div>
+  </ion-content>
+</ion-modal-view>

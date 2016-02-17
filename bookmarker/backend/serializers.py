@@ -7,7 +7,8 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'url', 'title', 'thumbnail', 'created_at', 'belong', 'priority', 'is_public', 'created_by', 'remarks')
+        fields = ('id', 'url', 'title', 'thumbnail', 'updated_at', 'created_at',
+            'belong', 'priority', 'is_public', 'created_by', 'remark')
         extra_kwargs = {
             'is_public': {'read_only': True},
             'created_by': {'lookup_field': 'id'}

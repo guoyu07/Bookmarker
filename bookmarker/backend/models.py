@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import pre_save, post_save, post_delete
 from django.dispatch import receiver
 
 from django.utils.deconstruct import deconstructible
@@ -81,7 +81,7 @@ class Entry(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='更新时间')
     views = models.IntegerField(verbose_name='点击量', default=0)
     priority = models.IntegerField(verbose_name='优先级', choices=PRIORITIES, default=0)
-    remarks = models.CharField(max_length=1024, verbose_name='备注', blank=True)
+    remark = models.CharField(max_length=1024, verbose_name='备注', blank=True)
     is_public = models.BooleanField(verbose_name='是否公开', default=False)
     belong = models.ForeignKey(Favorite, on_delete=models.CASCADE, related_name='entries',
                      verbose_name='所属收藏夹')
@@ -133,9 +133,12 @@ def user_post_save_handler(sender, instance, created, **kwargs):
         Favorite.objects.create(created_by=instance)
         Setting.objects.create(owner=instance)
 
+@receiver(pre_save, sender=Entry)
+def entry_pre_save_handler(sender, instance, *args, **kwargs):
+    instance.is_public = instance.belong.is_public
 
 @receiver(post_save, sender=Entry)
-def entry_pre_save_handler(sender, instance, created, **kwargs):
+def entry_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
         instance.created_by = instance.belong.created_by
         instance.is_public = instance.belong.is_public
@@ -143,8 +146,7 @@ def entry_pre_save_handler(sender, instance, created, **kwargs):
         instance.save()
         instance.belong.save()
 
-
 @receiver(post_delete, sender=Entry)
-def entry_pre_del_handler(sender, instance, **kwargs):
+def entry_post_del_handler(sender, instance, **kwargs):
     instance.belong.entries_num -= 1
     instance.belong.save()

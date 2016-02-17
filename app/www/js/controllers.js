@@ -102,6 +102,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     }, function(results) {
       $rootScope.loading = false;
       $rootScope.entries = results;
+      console.log(results);
       $rootScope.$broadcast('entryLoadingCompleted');
     }, function() {
       $rootScope.loading = false;
@@ -133,6 +134,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.displayMode = 1;
   $scope.loading = true;
   $scope.newEntry = {};
+  $scope.deatailEntry = {};
   $scope.createMode = true; // false if updateMode
   $scope.selectedEntry = null;
   $scope.priorityOptions = [{
@@ -150,7 +152,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     scope: $scope,
     animation: 'jelly'
   }).then(function(modal) {
-    $scope.modal = modal;
+    $scope.bmModal = modal;
   });
 
   $ionicPopover.fromTemplateUrl('templates/options.html', {
@@ -159,13 +161,25 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.popover = popover;
   });
 
-  $scope.showOptions = function($event) {
-    console.log($event);
+  $ionicModal.fromTemplateUrl('templates/detail.html', {
+    scope: $scope
+  }).then(function(modal) {
+    $scope.dtModal = modal;
+  });
+
+
+  $scope.showOptions = function($event, entry) {
+    $event.preventDefault();
+    $scope.deatailEntry = entry;
     $scope.popover.show($event);
   }
 
+  $scope.showDetail = function(entry) {
+    $scope.dtModal.show();
+  }
+
   $scope.$on('$destroy', function() {
-    $scope.modal.remove();
+    $scope.bmModal.remove();
     $scope.popover.remove();
   });
 
@@ -197,7 +211,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     entry.$save(function(entry, putResponseHeaders) {
       $rootScope.entries.push(entry);
       $scope.loadEntries();
-      $scope.modal.hide();
+      $scope.bmModal.hide();
     }, function() {
       UI.toast('添加失败');
     });
@@ -205,7 +219,11 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.updateEntry = function() {
     if ($scope.selectedEntry != null) {
-      angular.extend($scope.selectedEntry, $scope.newEntry)
+      var found = $filter('filter')($rootScope.favorites, {id: parseInt($scope.newEntry.belong)}, true);
+      if (found.length) {
+        $scope.newEntry.is_public = found[0].is_public;
+      }
+      angular.extend($scope.selectedEntry, $scope.newEntry);
       Entry.update({
         id: $scope.selectedEntry.id
       }, $scope.selectedEntry, function() {
@@ -237,7 +255,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
       $scope.newEntry.priority = $scope.selectedEntry.priority.toString();
       $scope.newEntry.belong = $scope.selectedEntry.belong.toString();
     }
-    $scope.modal.show();
+    $scope.popover.hide();
+    $scope.bmModal.show();
   }
 
   $scope.removeEntry = function(entry) {
@@ -250,16 +269,18 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     }, function() {
       UI.toast('删除失败');
     });
+    $scope.popover.hide();
   }
 
   $scope.showCreateModal = function() {
     $scope.createMode = true;
     $scope.newEntry = {};
-    $scope.modal.show();
+    $scope.bmModal.show();
   }
 
   $scope.closeModal = function() {
-    $scope.modal.hide();
+    $scope.bmModal.hide();
+    $scope.dtModal.hide();
   }
 
   $scope.loadEntries = function() {
