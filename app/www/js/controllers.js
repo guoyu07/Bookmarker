@@ -33,7 +33,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.login = function(isValid) {
     if (isValid) {
-      $scope.doLogin($scope.username, $scope.password, $scope.rememberMe==true);
+      $scope.doLogin($scope.username, $scope.password, $scope.rememberMe == true);
     }
   }
 
@@ -65,7 +65,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
         password: $scope.register.password,
         email: $scope.register.email
       });
-      user.$save(function(user, putResponseHeaders){
+      user.$save(function(user, putResponseHeaders) {
         $scope.doLogin($scope.register.username, $scope.register.password, false);
         $scope.modal.hide();
       }, function(response) {
@@ -128,14 +128,23 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal,
-  Entry, UserEntry, chunk, UserProfile, UI) {
+  $ionicPopover, Entry, UserEntry, chunk, UserProfile, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
   $scope.newEntry = {};
   $scope.createMode = true; // false if updateMode
   $scope.selectedEntry = null;
-  $scope.priorityOptions = [{val: '1', name:"高"},{val: '0', name:"默认"},{val: '-1', name:"低"}];
+  $scope.priorityOptions = [{
+    val: '1',
+    name: "高"
+  }, {
+    val: '0',
+    name: "默认"
+  }, {
+    val: '-1',
+    name: "低"
+  }];
 
   $ionicModal.fromTemplateUrl('templates/edit.html', {
     scope: $scope,
@@ -144,8 +153,20 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.modal = modal;
   });
 
+  $ionicPopover.fromTemplateUrl('templates/options.html', {
+    scope: $scope
+  }).then(function(popover) {
+    $scope.popover = popover;
+  });
+
+  $scope.showOptions = function($event) {
+    console.log($event);
+    $scope.popover.show($event);
+  }
+
   $scope.$on('$destroy', function() {
     $scope.modal.remove();
+    $scope.popover.remove();
   });
 
   $scope.quickAdd = function(isValid) {
@@ -157,7 +178,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.submitEntry = function(entryForm) {
     var isValid = entryForm.$valid;
     if (isValid) {
-      if($scope.createMode == true)
+      if ($scope.createMode == true)
         $scope.addEntry();
       else
         $scope.updateEntry();
@@ -185,13 +206,17 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   $scope.updateEntry = function() {
     if ($scope.selectedEntry != null) {
       angular.extend($scope.selectedEntry, $scope.newEntry)
-      Entry.update({id: $scope.selectedEntry.id}, $scope.selectedEntry, function() {
-        var index = $rootScope.entries.map(function(x) {return x.id; }).indexOf($scope.selectedEntry.id);
+      Entry.update({
+        id: $scope.selectedEntry.id
+      }, $scope.selectedEntry, function() {
+        var index = $rootScope.entries.map(function(x) {
+          return x.id;
+        }).indexOf($scope.selectedEntry.id);
         $scope.selectedEntry.priority = parseInt($scope.selectedEntry.priority);
         $rootScope.entries[index] = $scope.selectedEntry;
         $scope.loadEntries();
         $scope.closeModal();
-      }, function(){
+      }, function() {
         UI.toast('更新失败');
       });
     } else {
@@ -201,8 +226,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.editEntry = function(entryId) {
     $scope.createMode = false;
-    var found = $filter('filter')($rootScope.entries, {id: entryId}, true);
-    if(found.length) {
+    var found = $filter('filter')($rootScope.entries, {
+      id: entryId
+    }, true);
+    if (found.length) {
       $scope.selectedEntry = found[0];
       $scope.newEntry.title = $scope.selectedEntry.title;
       $scope.newEntry.url = $scope.selectedEntry.url;
@@ -236,7 +263,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 
   $scope.loadEntries = function() {
-    console.log('load');
     $scope.chunks = chunk($filter('orderBy')($rootScope.entries, '-priority', false), $rootScope.bmColumns);
   }
 
@@ -267,8 +293,28 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
 })
 
-.controller('FavoriteCtrl', function($scope, $stateParams, Favorite, UserFavorite, Entry,
-  UserProfile, chunk, $ionicModal) {
+.controller('FavoriteCtrl', function($scope, $stateParams, $rootScope, Favorite, UserFavorite, Entry,
+  UserProfile, chunk, $ionicModal, $ionicPopup, UI) {
+  $scope.newFavor = {}
+  var popUpOptions = {
+    template: '<input type="text" maxlength="32" ng-model="newFavor.name">',
+    title: '输入收藏夹名称',
+    scope: $scope,
+    buttons: [{
+      text: '取消'
+    }, {
+      text: '<b>保存</b>',
+      type: 'button-positive',
+      onTap: function(e) {
+        if (!$scope.newFavor.name) {
+          e.preventDefault();
+        } else {
+          return $scope.newFavor.name;
+        }
+      }
+    }, ]
+  };
+
   $ionicModal.fromTemplateUrl('templates/favor.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -282,6 +328,51 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.closeModal = function() {
     $scope.modal.hide();
+  }
+
+  $scope.addFavorite = function() {
+    $scope.newFavor.name = "";
+    var myPopup = $ionicPopup.show(popUpOptions);
+    myPopup.then(function(name) {
+      if (name) {
+        var favor = new Favorite({
+          name: name
+        });
+        favor.$save(function(favor) {
+          $rootScope.favorites.push(favor);
+          console.log($rootScope.favorites);
+        });
+      }
+    });
+  };
+
+  $scope.editFavorite = function(favor) {
+    $scope.newFavor.name = favor.name;
+    var myPopup = $ionicPopup.show(popUpOptions);
+    myPopup.then(function(name) {
+      if (name) {
+        favor.name = name;
+        Favorite.update({
+          id: favor.id
+        }, favor, function() {
+          var index = $rootScope.favorites.indexOf(favor);
+          $rootScope.favorites[index].name = name;
+        }, function() {
+          UI.toast('更新失败');
+        });
+      }
+    });
+  }
+
+  $scope.removeFavorite = function(favor) {
+    Favorite.remove({
+      id: favor.id
+    }, function() {
+      $rootScope.favorites.splice($rootScope.favorites.indexOf(favor), 1);
+      UI.toast('删除成功');
+    }, function() {
+      UI.toast('删除失败');
+    });
   }
 
   $scope.showFavorite = function(id) {

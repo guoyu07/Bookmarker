@@ -18,7 +18,7 @@
         <div class="{{bmClass}}" ng-repeat="entry in rows">
           <div class="card bookmark">
 
-            <ion-item class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" click-for-options ng-if="displayMode>0">
+            <ion-item click-for-options ng-right-click="showOptions($event)" class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" ng-if="displayMode>0">
               <img ng-src="{{entry.url | favicon}}">
               <h2>{{entry.title}}</h2>
               <p>{{entry.remark}}</p>

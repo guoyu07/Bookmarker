@@ -33,6 +33,20 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 })
 
+.directive('ngRightClick', function($parse) {
+  return function(scope, element, attrs) {
+    var fn = $parse(attrs.ngRightClick);
+    element.bind('contextmenu', function(event) {
+      scope.$apply(function() {
+        event.preventDefault();
+        fn(scope, {
+          $event: event
+        });
+      });
+    });
+  };
+})
+
 .directive('clickForOptions', ['$ionicGesture', function($ionicGesture) {
   return {
     restrict: 'A',

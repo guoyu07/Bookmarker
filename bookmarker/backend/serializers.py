@@ -20,7 +20,10 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Favorite
         fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')
-        extra_kwargs = {'entries_num': {'read_only': True}}
+        extra_kwargs = {
+        'entries_num': {'read_only': True},
+        'created_by': {'read_only': True}
+        }
 
 
 class SettingSerializer(serializers.HyperlinkedModelSerializer):
