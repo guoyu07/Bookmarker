@@ -102,7 +102,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     }, function(results) {
       $rootScope.loading = false;
       $rootScope.entries = results;
-      console.log(results);
       $rootScope.$broadcast('entryLoadingCompleted');
     }, function() {
       $rootScope.loading = false;
@@ -129,7 +128,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal,
-  $ionicPopover, Entry, UserEntry, chunk, UserProfile, UI) {
+  $ionicPopover, $ionicListDelegate, $cordovaSocialSharing, ClipboardService, Entry, UserEntry, chunk, UserProfile,
+  API_URL, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
@@ -185,8 +185,25 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 
   $scope.quickAdd = function(isValid) {
     if (isValid) {
-
     }
+  }
+
+  $scope.shareEntry = function(entry) {
+    $cordovaSocialSharing
+    .share(entry.remark, entry.title, null, entry.url) // Share via native share sheet
+    .then(function(result) {
+      // Success!
+    }, function(err) {
+      // An error occured. Show a message to the user
+    });
+  }
+
+  $scope.copyEntryLink = function(url) {
+    // ClipboardService.copy(url).then(function(){
+    //   UI.toast('复制成功');
+    // }, function(){
+    //   UI.toast('复制失败');
+    // });
   }
 
   $scope.submitEntry = function(entryForm) {
@@ -240,6 +257,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     } else {
       UI.toast('更新失败');
     }
+    $ionicListDelegate.closeOptionButtons();
   }
 
   $scope.editEntry = function(entryId) {
@@ -269,6 +287,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     }, function() {
       UI.toast('删除失败');
     });
+    $ionicListDelegate.closeOptionButtons();
     $scope.popover.hide();
   }
 
@@ -315,7 +334,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
 })
 
 .controller('FavoriteCtrl', function($scope, $stateParams, $rootScope, Favorite, UserFavorite, Entry,
-  UserProfile, chunk, $ionicModal, $ionicPopup, UI) {
+  UserProfile, chunk, $ionicModal, $ionicPopup, UI, $ionicListDelegate) {
   $scope.newFavor = {}
   var popUpOptions = {
     template: '<input type="text" maxlength="32" ng-model="newFavor.name">',
@@ -361,13 +380,16 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
         });
         favor.$save(function(favor) {
           $rootScope.favorites.push(favor);
-          console.log($rootScope.favorites);
         });
       }
     });
   };
 
   $scope.editFavorite = function(favor) {
+    // if (favor.name == '默认') {
+    //   UI.toast('无法修改默认收藏夹');
+    //   return;
+    // }
     $scope.newFavor.name = favor.name;
     var myPopup = $ionicPopup.show(popUpOptions);
     myPopup.then(function(name) {
@@ -383,6 +405,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
         });
       }
     });
+    $ionicListDelegate.closeOptionButtons();
   }
 
   $scope.removeFavorite = function(favor) {

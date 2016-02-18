@@ -133,13 +133,10 @@ def user_post_save_handler(sender, instance, created, **kwargs):
         Favorite.objects.create(created_by=instance)
         Setting.objects.create(owner=instance)
 
-@receiver(pre_save, sender=Entry)
-def entry_pre_save_handler(sender, instance, *args, **kwargs):
-    instance.is_public = instance.belong.is_public
-
 @receiver(post_save, sender=Entry)
 def entry_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
+        print("true!!!")
         instance.created_by = instance.belong.created_by
         instance.is_public = instance.belong.is_public
         instance.belong.entries_num += 1

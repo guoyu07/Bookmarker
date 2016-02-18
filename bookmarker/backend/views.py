@@ -88,6 +88,29 @@ class EntryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
+    def perform_update(self, serializer):
+        entry = self.get_object()
+        orig_favor = entry.belong
+        entry = serializer.save()
+        new_favor = entry.belong
+        if orig_favor.id != new_favor.id:
+            entry.is_public = new_favor.is_public
+            orig_favor.entries_num -= 1
+            new_favor.entries_num += 1
+            entry.save()
+            orig_favor.save()
+            new_favor.save()
+
+    @list_route(methods=['post'])
+    def quick_add(self, request, pk=None):
+        from urllib.request import urlopen
+        import re
+        # content = urlopen('https://baidu.com', timeout=5).read()
+        # for m in re.finditer(b'<title>(.*)</title>', content):
+        #     print(m.group(1).decode())
+
+        return Response({'st':True})
+
 
 class FavoriteViewSet(viewsets.ModelViewSet):
     queryset = Favorite.objects.all().order_by('-created_at')

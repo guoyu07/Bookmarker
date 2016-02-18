@@ -31,6 +31,8 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     }
   });
 
+  $rootScope.fromBrowser = document.URL.match(/^https?:/)!=null;
+
 })
 
 .directive('ngRightClick', function($parse) {
@@ -114,15 +116,27 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   return new MappingObject(obj);
 })
 
-// .service('ClipboardService', function(cordovaClipboard) {
-//   $cordovaClipboard
-//     .paste()
-//     .then(function(result) {
-//       // success, use result
-//     }, function() {
-//       // error
-//     });
-// })
+.service('ClipboardService', function($window, $cordovaClipboard) {
+  var cod = false;
+  if ($window.plugins) {
+    cod = true;
+  }
+  return {
+    copy: function(text) {
+      if (cod) {
+        return $cordovaClipboard.copy(text);
+      }
+    },
+    parse: function() {
+      if (cod) {
+        $cordovaClipboard
+          .paste()
+          .then(function(result) {}, function() {});
+      }
+
+    }
+  }
+})
 
 .service('UI', function($http, $window, $q, $ionicLoading, $timeout) {
 
