@@ -215,7 +215,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
         name: tag.name
       });
     });
-    console.log($scope.newEntry.tags);
     var isValid = entryForm.$valid;
     if (isValid) {
       if ($scope.createMode == true)
@@ -232,7 +231,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
       url: $scope.newEntry.url,
       remark: $scope.newEntry.remark,
       priority: $scope.newEntry.priority || 0,
-      belong: $scope.newEntry.belong
+      belong: $scope.newEntry.belong,
+      tags: $scope.newEntry.tags
     });
     entry.$save(function(entry, putResponseHeaders) {
       $rootScope.entries.push(entry);

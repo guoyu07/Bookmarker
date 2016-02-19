@@ -23,7 +23,7 @@ from backend import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'tags', views.TagViewSet)
-router.register(r'tagrelations', views.TagRelationViewSet)
+# router.register(r'tagrelations', views.TagRelationViewSet)
 router.register(r'entries', views.EntryViewSet)
 router.register(r'favorites', views.FavoriteViewSet)
 router.register(r'settings', views.SettingViewSet)

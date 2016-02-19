@@ -1,14 +1,19 @@
-from .models import User, Entry, Favorite, Setting, Tag, TagRelation
+from .models import User, Entry, Favorite, Setting, Tag
 from rest_framework import serializers
 
 
 class EntrySerializer(serializers.ModelSerializer):
     created_by = serializers.SlugRelatedField(read_only=True, slug_field='username')
+    tags = serializers.SlugRelatedField(
+        many=True,
+        queryset=Tag.objects.all(),
+        slug_field='name'
+    )
 
     class Meta:
         model = Entry
         fields = ('id', 'url', 'title', 'thumbnail', 'updated_at', 'created_at',
-            'belong', 'priority', 'is_public', 'created_by', 'remark')
+            'belong', 'priority', 'is_public', 'created_by', 'remark', 'tags')
         extra_kwargs = {
             'is_public': {'read_only': True},
             'created_by': {'lookup_field': 'id'}
@@ -22,8 +27,8 @@ class FavoriteSerializer(serializers.HyperlinkedModelSerializer):
         model = Favorite
         fields = ('id', 'name', 'created_at', 'is_public', 'created_by', 'entries', 'entries_num')
         extra_kwargs = {
-        'entries_num': {'read_only': True},
-        'created_by': {'read_only': True}
+            'entries_num': {'read_only': True},
+            'created_by': {'read_only': True}
         }
 
 
@@ -34,17 +39,11 @@ class SettingSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TagSerializer(serializers.HyperlinkedModelSerializer):
+    entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
+
     class Meta:
         model = Tag
-        fields = ('name',)
-
-
-class TagRelationSerializer(serializers.HyperlinkedModelSerializer):
-    tag = serializers.SlugRelatedField(read_only=True, slug_field='name')
-
-    class Meta:
-        model = TagRelation
-        fields = ('entry', 'tag')
+        fields = ('name', 'entries')
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

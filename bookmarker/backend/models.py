@@ -67,6 +67,17 @@ class Favorite(models.Model):
         verbose_name_plural = '收藏夹'
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=16, verbose_name='标题')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = '标签'
+        verbose_name_plural = '标签'
+
+
 class Entry(models.Model):
     PRIORITIES = (
         (1, '高'),
@@ -87,6 +98,7 @@ class Entry(models.Model):
                      verbose_name='所属收藏夹')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='entries',
                      verbose_name='所属用户', blank=True, null=True)
+    tags = models.ManyToManyField(Tag, verbose_name='标签', related_name='entries', blank=True)
 
     def __str__(self):
         return "%s [%s]" %(self.url, self.created_by)
@@ -94,31 +106,6 @@ class Entry(models.Model):
     class Meta:
         verbose_name = '书签'
         verbose_name_plural = '书签'
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=16, verbose_name='标题')
-    entries = models.ManyToManyField(
-        Entry,
-        through='TagRelation',
-        through_fields=('tag', 'entry')
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = '标签'
-        verbose_name_plural = '标签'
-
-
-class TagRelation(models.Model):
-    entry = models.ForeignKey(Entry, verbose_name='书签')
-    tag = models.ForeignKey(Tag, verbose_name='标签')
-
-    class Meta:
-        verbose_name = '书签标签'
-        verbose_name_plural = '书签标签'
 
 
 class User(AbstractUser):

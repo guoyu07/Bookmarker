@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import User, Setting, Entry, Tag, TagRelation, Favorite
+from .models import User, Setting, Entry, Tag, Favorite
 
 # Register your models here.
 
@@ -31,10 +31,6 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-class TagRelationAdmin(admin.ModelAdmin):
-    list_display = ('entry', 'tag')
-
-
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_by', 'created_at', 'entries_num')
     ordering = ('created_at',)
@@ -44,5 +40,5 @@ admin.site.register(User, UserAdmin)
 admin.site.register(Setting, SettingAdmin)
 admin.site.register(Entry, EntryAdmin)
 admin.site.register(Tag, TagAdmin)
-admin.site.register(TagRelation, TagRelationAdmin)
+# admin.site.register(TagRelation, TagRelationAdmin)
 admin.site.register(Favorite, FavoriteAdmin)

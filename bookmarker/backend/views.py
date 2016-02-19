@@ -1,14 +1,14 @@
 from django.db.models import Q
-from .models import User, Entry, Favorite, Setting, Tag, TagRelation
+from .models import User, Entry, Favorite, Setting, Tag
 from .utils import make_status
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerializer,
-    SettingSerializer, TagSerializer, TagRelationSerializer, UserSerializer)
+    SettingSerializer, TagSerializer, UserSerializer)
 
-from .permissions import (IsAdminOrIsSelf, EntryOwnerCanEditPermission, UserOwnerCanEditPermission,
-    SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission, CanViewPermisson)
+from .permissions import (SafeMethodsOnlyPermission, IsAdminOrIsSelf, EntryOwnerCanEditPermission,
+ UserOwnerCanEditPermission, SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission, CanViewPermisson)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -104,7 +104,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'])
     def tags(self, request, pk=None):
         entry = self.get_object()
-        tags = entry.tag_set.all()
+        tags = entry.tags.all()
         serializer = TagSerializer(tags, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -145,8 +145,4 @@ class SettingViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-
-
-class TagRelationViewSet(viewsets.ModelViewSet):
-    queryset = TagRelation.objects.all()
-    serializer_class = TagRelationSerializer
+    permission_classes = (SafeMethodsOnlyPermission, permissions.IsAuthenticated)
