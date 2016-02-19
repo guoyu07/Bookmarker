@@ -12,6 +12,7 @@ class UserAdmin(UserAdmin):
         ('资料信息', {'fields': ('date_joined',)}),
         ('权限', {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         ('登录信息', {'fields': ('last_login',)}),
+        ('默认收藏夹', {'fields': ('default_favor',)}),
     )
     list_display = ('username', 'email', 'is_active', 'is_staff', 'is_superuser')
     ordering = ('date_joined',)

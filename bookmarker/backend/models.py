@@ -110,6 +110,7 @@ class Entry(models.Model):
 
 class User(AbstractUser):
     avatar = models.ImageField(upload_to=UploadToDir('avatar'), verbose_name='头像', blank=True)
+    default_favor = models.OneToOneField(Favorite, verbose_name='默认收藏夹', null=True, blank=True)
 
     def __str__(self):
         return self.username
@@ -122,13 +123,13 @@ class User(AbstractUser):
 @receiver(post_save, sender=User)
 def user_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
-        Favorite.objects.create(created_by=instance)
+        instance.default_favor = Favorite.objects.create(created_by=instance)
         Setting.objects.create(owner=instance)
+        instance.save()
 
 @receiver(post_save, sender=Entry)
 def entry_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
-        print("true!!!")
         instance.created_by = instance.belong.created_by
         instance.is_public = instance.belong.is_public
         instance.belong.entries_num += 1

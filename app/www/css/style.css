@@ -9,9 +9,9 @@
   }
 }
 @media (min-width: 680px) {
-  .signUp {
+  .editModal {
     top: 5%;
-    height: 65%;
+    height: 70%;
   }
 }
 .has-errors {

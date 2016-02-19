@@ -163,7 +163,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   }
 })
 
-.service('UserProfile', function(MappingObject, AuthService, Setting) {
+.service('UserProfile', function(MappingObject, AuthService, User, Setting, $rootScope) {
   var displayMapping = MappingObject({
     "Detail": "详细",
     "Medium": "默认",
@@ -176,8 +176,13 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
-  if (userProfile != null)
+  if (userProfile != null) {
     AuthService.setIsLoggedIn(true);
+    User.get({id: userProfile.user_id}, function(user) {
+      userProfile = user;
+      $rootScope.user = user;
+    });
+  }
 
   return {
     setProfile: function(profile) {

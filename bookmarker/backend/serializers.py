@@ -1,14 +1,17 @@
 from .models import User, Entry, Favorite, Setting, Tag
 from rest_framework import serializers
 
+class TagSerializer(serializers.HyperlinkedModelSerializer):
+    # entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
+
+    class Meta:
+        model = Tag
+        fields = ('name',)
+
 
 class EntrySerializer(serializers.ModelSerializer):
     created_by = serializers.SlugRelatedField(read_only=True, slug_field='username')
-    tags = serializers.SlugRelatedField(
-        many=True,
-        queryset=Tag.objects.all(),
-        slug_field='name'
-    )
+    tags = TagSerializer(many=True)
 
     class Meta:
         model = Entry
@@ -38,21 +41,15 @@ class SettingSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'display_style', 'layout_style', 'quick_mode')
 
 
-class TagSerializer(serializers.HyperlinkedModelSerializer):
-    entries = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='entry-detail')
-
-    class Meta:
-        model = Tag
-        fields = ('name', 'entries')
-
-
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+    user_id = serializers.ReadOnlyField(source='id')
+    default_favor = serializers.PrimaryKeyRelatedField(read_only=True)
     setting = serializers.HyperlinkedIdentityField(read_only=True, view_name='setting-detail')
     favorites = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='favorite-detail')
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'avatar', 'email', 'password', 'setting', 'favorites')
+        fields = ('user_id', 'username', 'avatar', 'email', 'password', 'default_favor', 'setting', 'favorites')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):

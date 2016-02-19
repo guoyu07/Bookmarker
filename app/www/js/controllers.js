@@ -89,6 +89,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     $ionicTabsDelegate.select((index + 1) % 3);
   }
 
+
   $rootScope.loading = true;
 
   UserProfile.setting().then(function(results) {
@@ -167,9 +168,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     $scope.dtModal = modal;
   });
 
-  $scope.loadTags = function(entry) {
-
-  }
+  // $scope.loadTags = function(entry) {
+  //
+  // }
 
   $scope.showOptions = function($event, entry) {
     $event.preventDefault();
@@ -283,6 +284,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
       $scope.newEntry.belong = $scope.selectedEntry.belong.toString();
 
       EntryTag.query({id: $scope.selectedEntry.id}, function(result) {
+        console.log(result);
         $scope.newEntry.tags = result;
       });
     }
@@ -307,6 +309,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   $scope.showCreateModal = function() {
     $scope.createMode = true;
     $scope.newEntry = {};
+    $scope.newEntry.priority = "0";
+    $scope.newEntry.belong = $rootScope.user.default_favor.toString();
     $scope.bmModal.show();
   }
 
@@ -393,6 +397,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
         });
         favor.$save(function(favor) {
           $rootScope.favorites.push(favor);
+        }, function() {
+          UI.toast('添加失败');
         });
       }
     });

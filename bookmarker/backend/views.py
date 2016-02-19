@@ -76,7 +76,11 @@ class EntryViewSet(viewsets.ModelViewSet):
             # 检查收藏夹是否属于请求用户
             if Favorite.objects.filter(created_by=request.user.id,
                 id=request.data['belong']).exists():
+                tags_data = serializer.validated_data.pop('tags')
                 entry = Entry.objects.create(**serializer.validated_data)
+                for tag_data in tags_data:
+                    tag, created = Tag.objects.get_or_create(**tag_data)
+                    entry.tags.add(tag)
                 serialized_entry = EntrySerializer(entry)
                 return Response(serialized_entry.data, status=status.HTTP_201_CREATED)
             return Response(make_status(False, reason='拒绝访问'),
@@ -85,10 +89,35 @@ class EntryViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, pk=None):
+        serializer = EntrySerializer(data=request.data)
+        if serializer.is_valid():
+            if Favorite.objects.filter(created_by=request.user.id,
+                id=request.data['belong']).exists():
+                tags_data = serializer.validated_data.pop('tags')
+                entry = Entry.objects.get(id=pk)
+                for attr, value in serializer.validated_data.items():
+                    attr = getattr(entry, attr)
+                    attr = value
+                entry.tags.clear()
+                for tag_data in tags_data:
+                    tag, created = Tag.objects.get_or_create(**tag_data)
+                    entry.tags.add(tag)
+                entry.save()
+                serialized_entry = EntrySerializer(entry)
+                return Response(serialized_entry.data, status=status.HTTP_202_ACCEPTED)
+            return Response(make_status(False, reason='拒绝访问'),
+                                status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
+        print(2)
         entry = self.get_object()
         orig_favor = entry.belong
         entry = serializer.save()
