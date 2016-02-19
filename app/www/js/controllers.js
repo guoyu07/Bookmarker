@@ -1,4 +1,4 @@
-angular.module('bookmarker.controllers', ['bookmarker.api'])
+angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 .filter('favicon', function() {
   return function(url) {
@@ -127,9 +127,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   });
 })
 
-.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal,
-  $ionicPopover, $ionicListDelegate, $cordovaSocialSharing, ClipboardService, Entry, UserEntry, chunk, UserProfile,
-  API_URL, UI) {
+.controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal, $ionicPopover,
+  $ionicListDelegate, $cordovaSocialSharing, ClipboardService, Entry, UserEntry, chunk, UserProfile,
+  EntryTag, Tag, API_URL, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
@@ -167,6 +167,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
     $scope.dtModal = modal;
   });
 
+  $scope.loadTags = function(entry) {
+
+  }
 
   $scope.showOptions = function($event, entry) {
     $event.preventDefault();
@@ -207,6 +210,12 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
   }
 
   $scope.submitEntry = function(entryForm) {
+    $scope.newEntry.tags = $scope.newEntry.tags.map(function(tag) {
+      return new Tag({
+        name: tag.name
+      });
+    });
+    console.log($scope.newEntry.tags);
     var isValid = entryForm.$valid;
     if (isValid) {
       if ($scope.createMode == true)
@@ -272,6 +281,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api'])
       $scope.newEntry.remark = $scope.selectedEntry.remark;
       $scope.newEntry.priority = $scope.selectedEntry.priority.toString();
       $scope.newEntry.belong = $scope.selectedEntry.belong.toString();
+
+      EntryTag.query({id: $scope.selectedEntry.id}, function(result) {
+        $scope.newEntry.tags = result;
+      });
     }
     $scope.popover.hide();
     $scope.bmModal.show();

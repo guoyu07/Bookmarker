@@ -39,6 +39,11 @@
             <option ng-repeat="favor in $root.favorites" value="{{favor.id}}" ng-selected="selectedEntry.belong == favor.id">{{favor.name}}</option>
           </select>
         </label>
+        <label class="item item-input item-floating-label">
+          <tags-input ng-model="newEntry.tags" display-property="name" placeholder="添加标签" min-length="2" max-tags="5">
+              <!-- <auto-complete source="loadTags()"></auto-complete> -->
+          </tags-input>
+        </label>
       </div>
       <div class="padding">
         <button class="button button-block button-positive activated" type="submit">

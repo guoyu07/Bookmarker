@@ -81,6 +81,10 @@ angular.module('bookmarker.api', ['ngResource'])
   make_resource('/tags/:id/', {id: '@id'})
 )
 
+.factory('TagRelations',
+  make_resource('/tagrelations/:id/', {id: '@id'})
+)
+
 .factory('Setting',
   make_resource('/settings/:id/', {id: '@id'})
 )
@@ -93,5 +97,8 @@ angular.module('bookmarker.api', ['ngResource'])
   make_resource('/users/:id/favorites/', {id: '@id'}, true)
 )
 
+.factory('EntryTag',
+  make_resource('/entries/:id/tags/', {id: '@id'}, true)
+)
 
 ;

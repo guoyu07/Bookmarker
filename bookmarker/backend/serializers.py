@@ -40,6 +40,8 @@ class TagSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TagRelationSerializer(serializers.HyperlinkedModelSerializer):
+    tag = serializers.SlugRelatedField(read_only=True, slug_field='name')
+
     class Meta:
         model = TagRelation
         fields = ('entry', 'tag')

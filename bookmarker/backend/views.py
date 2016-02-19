@@ -101,15 +101,22 @@ class EntryViewSet(viewsets.ModelViewSet):
             orig_favor.save()
             new_favor.save()
 
-    @list_route(methods=['post'])
-    def quick_add(self, request, pk=None):
-        from urllib.request import urlopen
-        import re
-        # content = urlopen('https://baidu.com', timeout=5).read()
-        # for m in re.finditer(b'<title>(.*)</title>', content):
-        #     print(m.group(1).decode())
+    @detail_route(methods=['get'])
+    def tags(self, request, pk=None):
+        entry = self.get_object()
+        tags = entry.tag_set.all()
+        serializer = TagSerializer(tags, many=True, context={'request': request})
+        return Response(serializer.data)
 
-        return Response({'st':True})
+    # @list_route(methods=['post'])
+    # def quick_add(self, request, pk=None):
+    #     from urllib.request import urlopen
+    #     import re
+    #     # content = urlopen('https://baidu.com', timeout=5).read()
+    #     # for m in re.finditer(b'<title>(.*)</title>', content):
+    #     #     print(m.group(1).decode())
+    #
+    #     return Response({'st':True})
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

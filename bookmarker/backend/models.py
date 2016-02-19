@@ -98,6 +98,11 @@ class Entry(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=16, verbose_name='标题')
+    entries = models.ManyToManyField(
+        Entry,
+        through='TagRelation',
+        through_fields=('tag', 'entry')
+    )
 
     def __str__(self):
         return self.name
