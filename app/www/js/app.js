@@ -35,21 +35,6 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 })
 
-.config(function($cordovaInAppBrowserProvider) {
-
-  var defaultOptions = {
-    location: 'no',
-    clearcache: 'no',
-    toolbar: 'no'
-  };
-
-  document.addEventListener(function () {
-
-    $cordovaInAppBrowserProvider.setDefaultOptions(options)
-
-  }, false);
-})
-
 .directive('ngRightClick', function($parse) {
   return function(scope, element, attrs) {
     var fn = $parse(attrs.ngRightClick);
