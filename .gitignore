@@ -6,3 +6,4 @@ static/
 migrations/
 venv/
 __pycache__/
+resources/

@@ -76,6 +76,12 @@ class EntryViewSet(viewsets.ModelViewSet):
             # 检查收藏夹是否属于请求用户
             if Favorite.objects.filter(created_by=request.user.id,
                 id=request.data['belong']).exists():
+                if request.data['title'] == '$qa':
+                    # quick add
+                    serializer.validated_data.pop('title')
+                    title = self.get_url_title(request.data['url'])
+                    if title:
+                        serializer.validated_data['title'] = title
                 tags_data = serializer.validated_data.pop('tags')
                 entry = Entry.objects.create(**serializer.validated_data)
                 for tag_data in tags_data:
@@ -117,7 +123,6 @@ class EntryViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
     def perform_update(self, serializer):
-        print(2)
         entry = self.get_object()
         orig_favor = entry.belong
         entry = serializer.save()
@@ -137,15 +142,16 @@ class EntryViewSet(viewsets.ModelViewSet):
         serializer = TagSerializer(tags, many=True, context={'request': request})
         return Response(serializer.data)
 
-    # @list_route(methods=['post'])
-    # def quick_add(self, request, pk=None):
-    #     from urllib.request import urlopen
-    #     import re
-    #     # content = urlopen('https://baidu.com', timeout=5).read()
-    #     # for m in re.finditer(b'<title>(.*)</title>', content):
-    #     #     print(m.group(1).decode())
-    #
-    #     return Response({'st':True})
+    def get_url_title(self, url):
+        from urllib.request import urlopen
+        import re
+        title = None
+        content = urlopen(url, timeout=5).read()
+        for m in re.finditer(b'<title>(.*)</title>', content):
+            title = m.group(1).decode()
+            if title:
+                return title
+        return title
 
 
 class FavoriteViewSet(viewsets.ModelViewSet):

@@ -2,6 +2,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 .filter('favicon', function() {
   return function(url) {
+    // return 'http://data.scrapelogo.com/'+ url +'/logo'
     return 'http://grabicon.com/icon?domain=' + url + '&size=64'
   }
 })
@@ -41,7 +42,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     Authentication.login(username, password, function(response, status, headers, config) {
       var token = response.data.token;
       AuthService.save(token);
-      UserProfile.setProfile(AuthService.decodeToken(token));
+      UserProfile.initProfile();
       $scope.$emit('userLogging');
     }, function(response, status, headers, config) {
       UI.toast('登录失败');
@@ -130,7 +131,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 .controller('BookmarkCtrl', function($scope, $stateParams, $rootScope, $filter, $ionicModal, $ionicPopover,
   $ionicListDelegate, $cordovaSocialSharing, ClipboardService, Entry, UserEntry, chunk, UserProfile,
-  EntryTag, Tag, API_URL, UI) {
+  $cordovaInAppBrowser, EntryTag, Tag, API_URL, UI) {
   $scope.chunks = [];
   $scope.displayMode = 1;
   $scope.loading = true;
@@ -148,6 +149,23 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     val: '-1',
     name: "低"
   }];
+
+  $scope.openBrowser = function(url) {
+    if ($rootScope.fromBrowser) {
+      window.open(url);
+    } else {
+      $cordovaInAppBrowser.open(url, '_blank', {
+        location: 'yes',
+        clearcache: 'yes',
+        toolbar: 'no'
+      }).then(function(event) {
+        // success
+      })
+      .catch(function(event) {
+        UI.toast('加载失败');
+      });
+    }
+  }
 
   $ionicModal.fromTemplateUrl('templates/edit.html', {
     scope: $scope,
@@ -173,8 +191,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   // }
 
   $scope.showOptions = function($event, entry) {
-    $event.preventDefault();
+    $event.stopPropagation();
     $scope.deatailEntry = entry;
+    // ActionSheet?
     $scope.popover.show($event);
   }
 
@@ -189,25 +208,39 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
   $scope.quickAdd = function(isValid) {
     if (isValid) {
+      var entry = new Entry({
+        title: '$qa',
+        url: $scope.newEntry.qucikUrl,
+        priority: 0,
+        belong: $rootScope.user.default_favor.toString(),
+        tags: []
+      });
+      entry.$save(function(entry, putResponseHeaders) {
+        $rootScope.entries.push(entry);
+        $scope.loadEntries();
+      }, function() {
+        UI.toast('添加失败');
+      });
     }
   }
 
   $scope.shareEntry = function(entry) {
     $cordovaSocialSharing
-    .share(entry.remark, entry.title, null, entry.url) // Share via native share sheet
+    .share(entry.remark, entry.title, null, entry.url)
     .then(function(result) {
-      // Success!
+
     }, function(err) {
-      // An error occured. Show a message to the user
+
     });
   }
 
   $scope.copyEntryLink = function(url) {
-    // ClipboardService.copy(url).then(function(){
-    //   UI.toast('复制成功');
-    // }, function(){
-    //   UI.toast('复制失败');
-    // });
+    ClipboardService.copy(url).then(function(){
+      $scope.popover.hide();
+      UI.toast('复制成功', 'short');
+    }, function(){
+      UI.toast('复制失败', 'short');
+    });
   }
 
   $scope.submitEntry = function(entryForm) {
@@ -298,7 +331,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     }, function() {
       $rootScope.entries.splice($rootScope.entries.indexOf(entry), 1);
       $scope.loadEntries();
-      UI.toast('删除成功');
     }, function() {
       UI.toast('删除失败');
     });
@@ -310,7 +342,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     $scope.createMode = true;
     $scope.newEntry = {};
     $scope.newEntry.priority = "0";
-    $scope.newEntry.belong = $rootScope.user.default_favor.toString();
+    if ($rootScope.user.default_favor)
+      $scope.newEntry.belong = $rootScope.user.default_favor.toString();
     $scope.bmModal.show();
   }
 
@@ -352,21 +385,24 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 .controller('FavoriteCtrl', function($scope, $stateParams, $rootScope, Favorite, UserFavorite, Entry,
   UserProfile, chunk, $ionicModal, $ionicPopup, UI, $ionicListDelegate) {
-  $scope.newFavor = {}
+  $scope.newFavor = {};
+  $scope.createMode = false;
+
   var popUpOptions = {
-    template: '<input type="text" maxlength="32" ng-model="newFavor.name">',
+    template: '<input type="text" maxlength="32" ng-model="newFavor.name">'+
+    '<ion-checkbox style="border-width:0;padding:8px 16px 8px 60px;margin-top:10px;" ng-model="newFavor.isPublic" ng-show="createMode">公开</ion-checkbox>',
     title: '输入收藏夹名称',
     scope: $scope,
     buttons: [{
       text: '取消'
     }, {
       text: '<b>保存</b>',
-      type: 'button-positive',
+      type: 'button-calm',
       onTap: function(e) {
         if (!$scope.newFavor.name) {
           e.preventDefault();
         } else {
-          return $scope.newFavor.name;
+          return $scope.newFavor;
         }
       }
     }, ]
@@ -389,11 +425,13 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
   $scope.addFavorite = function() {
     $scope.newFavor.name = "";
+    $scope.createMode = true;
     var myPopup = $ionicPopup.show(popUpOptions);
-    myPopup.then(function(name) {
-      if (name) {
+    myPopup.then(function(favor) {
+      if (favor.name) {
         var favor = new Favorite({
-          name: name
+          name: favor.name,
+          is_public: favor.isPublic || false
         });
         favor.$save(function(favor) {
           $rootScope.favorites.push(favor);
@@ -405,20 +443,17 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   };
 
   $scope.editFavorite = function(favor) {
-    // if (favor.name == '默认') {
-    //   UI.toast('无法修改默认收藏夹');
-    //   return;
-    // }
     $scope.newFavor.name = favor.name;
+    $scope.createMode = false;
     var myPopup = $ionicPopup.show(popUpOptions);
-    myPopup.then(function(name) {
-      if (name) {
-        favor.name = name;
+    myPopup.then(function(newFavor) {
+      if (newFavor.name) {
+        favor.name = newFavor.name;
         Favorite.update({
           id: favor.id
         }, favor, function() {
           var index = $rootScope.favorites.indexOf(favor);
-          $rootScope.favorites[index].name = name;
+          $rootScope.favorites[index].name = newFavor.name;
         }, function() {
           UI.toast('更新失败');
         });
@@ -494,6 +529,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 .controller('SearchCtrl', function($scope, $stateParams, $rootScope) {
   $scope.query = {};
   $scope.queryBy = 'title';
+
+  $scope.show = function() {
+    alert('123');
+  }
 
 })
 

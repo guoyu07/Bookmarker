@@ -5,11 +5,18 @@
         <label class="item item-input">
           <i class="icon ion-search placeholder-icon"></i>
           <input type="text" placeholder="输入要查找的书签信息..." ng-model="query[queryBy]">
+          <button class="button button-small button-clear">
+            <!-- <i class="icon ion-chevron-down"></i> -->
+          </button>
         </label>
+        <!-- <ion-list>
+          <ion-radio ng-model="choice" ng-value="'title'">按标题</ion-radio>
+          <ion-radio ng-model="choice" ng-value="'tag'">按标签</ion-radio>
+        </ion-list> -->
       </div>
-
       <ion-item class="item item-thumbnail-left" ng-href="{{entry.url}}" target="_blank" click-for-options ng-repeat="entry in $root.entries | filter:query">
-        <img ng-src="{{entry.url | favicon}}">
+        <!-- <img ng-src="{{entry.url | favicon}}"> -->
+        <img ng-src="bookmark.png">
         <h2>{{entry.title}}</h2>
         <p>{{entry.remark}}</p>
         <ion-option-button class="button-positive" ng-click="editEntry(entry.id)">

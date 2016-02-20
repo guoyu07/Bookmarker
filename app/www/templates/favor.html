@@ -9,7 +9,8 @@
         <div class="col-33" ng-repeat="entry in rows" >
           <div class="card bookmark">
             <ion-item ng-href="{{entry.url}}" class="item item-thumbnail-left" target="_blank" >
-              <img ng-src="{{entry.url | favicon}}">
+              <!-- <img ng-src="{{entry.url | favicon}}"> -->
+              <img ng-src="bookmark.png">
               <h2>{{entry.title}}</h2>
               <p>{{entry.remark}}</p>
             </ion-item>

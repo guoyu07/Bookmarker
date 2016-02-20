@@ -1,5 +1,5 @@
-<ion-modal-view>
-  <ion-header-bar class="bar-positive fix-buttons">
+<ion-modal-view class="editModal">
+  <ion-header-bar class="bar-calm fix-buttons">
     <a class="button" ng-click="closeModal()">取消</a>
     <h1 class="title">
       {{deatailEntry.title}}
@@ -11,13 +11,19 @@
         <b>创建者</b> <p>{{deatailEntry.created_by}}</p>
       </div>
       <div class="item">
+        <b>标签</b>
+        <p>
+        <span ng-repeat="tag in deatailEntry.tags">{{tag.name}}{{$last ? '' : ','}}</span>
+        </p>
+      </div>
+      <div class="item">
         <b>是否公开</b> <p>{{deatailEntry.is_public?'是':'否'}}</p>
       </div>
       <div class="item">
-        <b>创建时间</b> <p>{{deatailEntry.created_at| date:'short'}}</p>
+        <b>创建时间</b> <p>{{deatailEntry.created_at| date:'HH:mm:ss MM/dd/yyyy'}}</p>
       </div>
       <div class="item">
-        <b>修改时间</b> <p>{{deatailEntry.updated_at| date:'short'}}</p>
+        <b>修改时间</b> <p>{{deatailEntry.updated_at| date:'HH:mm:ss MM/dd/yyyy'}}</p>
       </div>
     </div>
   </ion-content>

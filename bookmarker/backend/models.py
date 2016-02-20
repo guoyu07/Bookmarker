@@ -85,7 +85,7 @@ class Entry(models.Model):
         (-1, '低')
     )
 
-    title = models.CharField(max_length=128, verbose_name='标题', default='未命名')
+    title = models.CharField(max_length=128, verbose_name='标题', blank=True, default='未命名')
     url = models.URLField(verbose_name='url')
     thumbnail = models.ImageField(upload_to=UploadToDir('thumbnail'), verbose_name='缩略图', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='创建时间')

@@ -1,9 +1,9 @@
 <ion-popover-view style="height:auto;">
     <div class="list" style="margin-bottom:0;">
-      <ion-item class="item" ng-href="{{deatailEntry.url}}" target="_blank">
+      <ion-item class="item" ng-click="openBrowser(deatailEntry.url)">
           打开
       </ion-item>
-      <ion-item class="item" ng-show="!$root.fromBrowser" ng-click="copyEntryLink(deatailEntry.url)" target="_blank">
+      <ion-item class="item" ng-show="!$root.fromBrowser" ng-click="copyEntryLink(deatailEntry.url)">
           复制链接
       </ion-item>
       <ion-item class="item" ng-click="editEntry(deatailEntry.id)">

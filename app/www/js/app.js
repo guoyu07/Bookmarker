@@ -35,6 +35,21 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
 })
 
+.config(function($cordovaInAppBrowserProvider) {
+
+  var defaultOptions = {
+    location: 'no',
+    clearcache: 'no',
+    toolbar: 'no'
+  };
+
+  document.addEventListener(function () {
+
+    $cordovaInAppBrowserProvider.setDefaultOptions(options)
+
+  }, false);
+})
+
 .directive('ngRightClick', function($parse) {
   return function(scope, element, attrs) {
     var fn = $parse(attrs.ngRightClick);
@@ -116,24 +131,17 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   return new MappingObject(obj);
 })
 
-.service('ClipboardService', function($window, $cordovaClipboard) {
-  var cod = false;
-  if ($window.plugins) {
-    cod = true;
-  }
+.service('ClipboardService', function($window, $q, $cordovaClipboard) {
   return {
     copy: function(text) {
-      if (cod) {
-        return $cordovaClipboard.copy(text);
-      }
+      return $cordovaClipboard.copy(text);
     },
     parse: function() {
-      if (cod) {
+      if ($window.plugins) {
         $cordovaClipboard
           .paste()
           .then(function(result) {}, function() {});
       }
-
     }
   }
 })
@@ -157,7 +165,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     $ionicLoading.show({
       template: msg,
       noBackdrop: true,
-      duration: (duration == 'long' ? 1500 : 700)
+      duration: duration
     });
 
   }
@@ -176,20 +184,22 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
+
   if (userProfile != null) {
     AuthService.setIsLoggedIn(true);
-    User.get({id: userProfile.user_id}, function(user) {
-      userProfile = user;
-      $rootScope.user = user;
-    });
   }
 
   return {
-    setProfile: function(profile) {
-      if (profile != undefined && profile != null) {
-        userProfile = profile;
-      }
-      localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
+    updateProfile: function() {
+      User.get({id: userProfile.user_id}, function(profile) {
+        $rootScope.user = profile;
+        localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
+      });
+    },
+    initProfile: function() {
+      userProfile = AuthService.decodeToken(AuthService.get());
+      this.updateProfile();
+      localStorage.setItem('bookmarker.user.profile', JSON.stringify(userProfile));
     },
     removeProfile: function() {
       localStorage.removeItem('bookmarker.user.profile');

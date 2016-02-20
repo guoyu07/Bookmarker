@@ -23,13 +23,11 @@
     "cordova-plugin-x-toast",
     "ionic-plugin-keyboard",
     "cordova-plugin-x-socialsharing",
+    "cordova-plugin-inappbrowser",
     "com.verso.cordova.clipboard"
   ],
   "cordovaPlatforms": [
     "ios",
-    {
-      "platform": "android",
-      "locator": "windows"
-    }
+    "android"
   ]
 }
