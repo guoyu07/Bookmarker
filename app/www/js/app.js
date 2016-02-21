@@ -25,13 +25,11 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     if (AuthService.isTokenExpired()) {
       $state.go('app.login');
     } else {
-      // if(AuthService.isRemember()) {
-      //   AuthService.refreshToken();
-      // }
+
     }
   });
 
-  $rootScope.fromBrowser = document.URL.match(/^https?:/)!=null;
+  $rootScope.fromBrowser = document.URL.match(/^https?:/) != null;
 
 })
 
@@ -176,7 +174,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
 
   return {
     updateProfile: function() {
-      User.get({id: userProfile.user_id}, function(profile) {
+      User.get({
+        id: userProfile.user_id
+      }, function(profile) {
         $rootScope.user = profile;
         localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
       });
@@ -209,7 +209,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
     },
     setting: function() {
       return Setting.get({
-        id: userProfile.user_id
+        id: userProfile.setting
       }).$promise;
     }
   }
@@ -290,6 +290,79 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   });
 
 }])
+
+.factory('UpdateService', function($http, $cordovaAppVersion, $ionicPopup, $timeout, $ionicLoading,
+  $cordovaFileTransfer, $cordovaFileOpener2, UI, $window) {
+
+  var Update = {
+    check: function(view) {
+      if (!$window.cordova) {
+        return;
+      }
+      var url = '/version.json';
+      $http.get(url).success(function(res) {
+        var serveAppVersion = res.version;
+        if ($cordovaAppVersion === undefined) {
+          return;
+        }
+        $cordovaAppVersion.getVersionNumber().then(function(version) {
+          if (parseFloat(version) < parseFloat(serveAppVersion)) {
+            showUpdateConfirm(res);
+          } else {
+            if (view !== 'main') {
+              UI.toast('当前版本是最新的');
+            }
+          }
+        });
+      }).error(function(response) {
+        console.log(response);
+      })
+    }
+  };
+  var showUpdateConfirm = function(data) {
+    var confirmPopup = $ionicPopup.confirm({
+      title: '升级到最新版本：v' + data.version,
+      template: data.info,
+      cancelText: '取消',
+      okText: '升级'
+    });
+    confirmPopup.then(function(res) {
+      if (res) {
+        $ionicLoading.show({
+          template: "已经下载：0%"
+        });
+
+        var url = 'https://example.com/Lightbm.apk';
+        var targetPath = '/sdcard/Download/Lightbm.apk';
+        var trustHosts = true;
+        var options = {};
+
+        $cordovaFileTransfer.download(url, targetPath, options, trustHosts).then(function(result) {
+          $cordovaFileOpener2.open(targetPath, 'application/vnd.android.package-archive').then(function() {
+          }, function(err) {
+            alert(err);
+          });
+          $ionicLoading.hide();
+        }, function(err) {
+          alert(err);
+          $ionicLoading.hide();
+        }, function(progress) {
+          var downloadProgress;
+          $timeout(function() {
+            downloadProgress = (progress.loaded / progress.total) * 100;
+            $ionicLoading.show({
+              template: '已经下载：' + Math.floor(downloadProgress) + '%'
+            });
+            if (downloadProgress > 99) {
+              $ionicLoading.hide();
+            }
+          })
+        });
+      }
+    });
+  };
+  return Update;
+})
 
 .config(function($stateProvider, $urlRouterProvider) {
 

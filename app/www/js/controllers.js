@@ -150,11 +150,14 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     name: "低"
   }];
 
-  $scope.openBrowser = function(url) {
+  $scope.openBrowser = function(url, inSystem) {
     if ($rootScope.fromBrowser) {
       window.open(url);
     } else {
-      $cordovaInAppBrowser.open(url, '_blank', {
+      var target = '_blank';
+      if (inSystem == true)
+        target = '_system'
+      $cordovaInAppBrowser.open(url, target, {
         location: 'yes',
         clearcache: 'yes',
         toolbar: 'no'
@@ -218,6 +221,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
       entry.$save(function(entry, putResponseHeaders) {
         $rootScope.entries.push(entry);
         $scope.loadEntries();
+        $scope.newEntry.qucikUrl = "";
       }, function() {
         UI.toast('添加失败');
       });
@@ -526,16 +530,16 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 })
 
-.controller('SearchCtrl', function($scope, $stateParams, $rootScope) {
+.controller('SearchCtrl', function($scope, $stateParams, $filter, $rootScope) {
   $scope.query = {};
   $scope.queryBy = 'title';
 
-  $scope.show = function() {
-    alert('123');
-  }
-
 })
 
-.controller('AboutCtrl', function($scope, $stateParams) {})
+.controller('AboutCtrl', function($scope, $stateParams, UpdateService) {
+  $scope.checkUpdate = function() {
+    UpdateService.check();
+  }
+})
 
 ;

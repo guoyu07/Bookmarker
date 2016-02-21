@@ -10,6 +10,10 @@ from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerialize
 from .permissions import (SafeMethodsOnlyPermission, IsAdminOrIsSelf, EntryOwnerCanEditPermission,
  UserOwnerCanEditPermission, SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission, CanViewPermisson)
 
+from urllib.request import urlopen
+import re
+
+TITLE_PATTERN = re.compile(b'<title>(.*)</title>')
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -143,11 +147,9 @@ class EntryViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def get_url_title(self, url):
-        from urllib.request import urlopen
-        import re
         title = None
         content = urlopen(url, timeout=5).read()
-        for m in re.finditer(b'<title>(.*)</title>', content):
+        for m in re.finditer(TITLE_PATTERN, content):
             title = m.group(1).decode()
             if title:
                 return title

@@ -1,9 +1,12 @@
 <ion-view>
   <ion-content view-title="关于">
-    <div class="card">
-      <div class="item item-text-wrap">
+    <div class="list card">
+      <ion-item ng-show="!fromBrowser" ng-click="checkUpdate()">
+        检查更新
+      </ion-item>
+      <!-- <ion-item>
         来自东方的神秘力量
-      </div>
+      </ion-item> -->
     </div>
   </ion-content>
 </ion-view>

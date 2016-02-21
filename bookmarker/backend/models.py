@@ -124,6 +124,12 @@ class User(AbstractUser):
 def user_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
         instance.default_favor = Favorite.objects.create(created_by=instance)
+        Entry.objects.create(
+            title='测试书签',
+            url='http://example.com/',
+            remark='这是一条测试书签',
+            belong=instance.default_favor
+        )
         Setting.objects.create(owner=instance)
         instance.save()
 

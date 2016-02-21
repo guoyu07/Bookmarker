@@ -44,12 +44,12 @@ class SettingSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     user_id = serializers.ReadOnlyField(source='id')
     default_favor = serializers.PrimaryKeyRelatedField(read_only=True)
-    setting = serializers.HyperlinkedIdentityField(read_only=True, view_name='setting-detail')
-    favorites = serializers.HyperlinkedIdentityField(many=True, read_only=True, view_name='favorite-detail')
+    setting = serializers.PrimaryKeyRelatedField(read_only=True)
+    # favorites = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='favorite-detail')
 
     class Meta:
         model = User
-        fields = ('user_id', 'username', 'avatar', 'email', 'password', 'default_favor', 'setting', 'favorites')
+        fields = ('user_id', 'username', 'avatar', 'email', 'password', 'default_favor', 'setting')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, data):
