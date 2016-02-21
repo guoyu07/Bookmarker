@@ -1,0 +1,14 @@
+# image: daocloud/ci-python:3.4
+# services:
+#     - mysql
+#     - redis
+#
+# install:
+#     - pip3 install coverage
+#
+# before_script:
+#     - pip3 install -r requirements.txt
+#
+# script:
+#     - coverage run --source='./bookmarker' manage.py test
+#     - coverage report
