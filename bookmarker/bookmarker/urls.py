@@ -17,19 +17,22 @@ from django.conf import settings
 from django.conf.urls import url, include, patterns
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.views.generic.base import TemplateView
 from rest_framework import routers
 from backend import views
+
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'tags', views.TagViewSet)
-# router.register(r'tagrelations', views.TagRelationViewSet)
 router.register(r'entries', views.EntryViewSet)
 router.register(r'favorites', views.FavoriteViewSet)
 router.register(r'settings', views.SettingViewSet)
 
 
 urlpatterns = [
+    url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^sign-up/', views.sign_up),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

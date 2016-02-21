@@ -79,9 +79,9 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   };
 }])
 
-.constant('API_HOST', 'http://192.168.33.10')
+.constant('API_HOST', 'http://ivwsyygyfnhv-lbm.daoapp.io')
 
-.constant('API_URL', 'http://192.168.33.10/api')
+.constant('API_URL', 'http://ivwsyygyfnhv-lbm.daoapp.io/api')
 
 .config(function($resourceProvider) {
   $resourceProvider.defaults.stripTrailingSlashes = false;

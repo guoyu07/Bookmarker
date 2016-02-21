@@ -2,7 +2,8 @@ from django.db.models import Q
 from .models import User, Entry, Favorite, Setting, Tag
 from .utils import make_status
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route, list_route, permission_classes, api_view
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerializer,
     SettingSerializer, TagSerializer, UserSerializer)
@@ -14,6 +15,19 @@ from urllib.request import urlopen
 import re
 
 TITLE_PATTERN = re.compile(b'<title>(.*)</title>')
+
+@api_view(['POST'])
+@permission_classes((AllowAny, ))
+def sign_up(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        user = User(**serializer.validated_data)
+        user.set_password(serializer.validated_data['password'])
+        user.save()
+        return Response({}, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()

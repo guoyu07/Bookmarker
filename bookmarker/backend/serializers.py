@@ -45,7 +45,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     user_id = serializers.ReadOnlyField(source='id')
     default_favor = serializers.PrimaryKeyRelatedField(read_only=True)
     setting = serializers.PrimaryKeyRelatedField(read_only=True)
-    # favorites = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='favorite-detail')
 
     class Meta:
         model = User
@@ -58,12 +57,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         if not (6 <= len(data['password']) <= 18):
             raise serializers.ValidationError({'password': "密码长度应在6~18位"})
         return data
-
-    def create(self, validated_data):
-        user = User(**validated_data)
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
 
 
 class PasswordSerializer(serializers.ModelSerializer):

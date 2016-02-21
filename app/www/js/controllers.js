@@ -16,8 +16,8 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 })
 
-.controller('LoginCtrl', function($scope, $stateParams, $rootScope, $state, $ionicModal, AuthService,
-  Authentication, User, Setting, UserProfile, UI) {
+.controller('LoginCtrl', function($scope, $stateParams, $http, $rootScope, $state, $ionicModal, AuthService,
+  API_HOST, Authentication, User, Setting, UserProfile, UI) {
   $scope.register = {};
   $scope.registerErrMsgs = {};
 
@@ -61,17 +61,30 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
   $scope.register = function(isValid) {
     if (isValid) {
-      var user = new User({
+      $http.post(API_HOST + '/sign-up/', {
         username: $scope.register.username,
         password: $scope.register.password,
         email: $scope.register.email
-      });
-      user.$save(function(user, putResponseHeaders) {
+      }).success(function(response) {
+        console.log(response);
         $scope.doLogin($scope.register.username, $scope.register.password, false);
         $scope.modal.hide();
-      }, function(response) {
-        $scope.registerErrMsgs = response.data;
+      }).error(function(response) {
+        $scope.registerErrMsgs = response;
       });
+
+      // var user = new User({
+      //   username: $scope.register.username,
+      //   password: $scope.register.password,
+      //   email: $scope.register.email
+      // });
+      // user.$save(function(user, putResponseHeaders) {
+      //   $scope.doLogin($scope.register.username, $scope.register.password, false);
+      //   $scope.modal.hide();
+      // }, function(response) {
+      //   $scope.registerErrMsgs = response.data;
+      // });
+      //
     }
   }
 
