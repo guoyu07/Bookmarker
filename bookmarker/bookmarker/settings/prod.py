@@ -1,12 +1,8 @@
 from .base import *
 
-DEBUG = False
+# DEBUG = False
 
-ALLOWED_HOST = ['*']
-
-INSTALLED_APPS += (
-    'gunicorn',
-)
+# ALLOWED_HOSTS = []
 
 DATABASES = {
     'default': {
