@@ -306,7 +306,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       if (!$window.cordova) {
         return;
       }
-      var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/package/version.json';
+      var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/static/version.json';
       $http.get(url).success(function(res) {
         var serveAppVersion = res.version;
         if ($cordovaAppVersion === undefined) {
@@ -322,7 +322,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
           }
         });
       }).error(function(response) {
-        console.log(response);
+        UI.toast('更新失败');
       });
     }
   };
@@ -339,7 +339,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
           template: "已经下载：0%"
         });
 
-        var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/package/Lightbm.apk';
+        var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/static/Lightbm.apk';
         var targetPath = '/sdcard/Download/Lightbm.apk';
         var trustHosts = true;
         var options = {};

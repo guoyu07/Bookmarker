@@ -1,7 +1,7 @@
 {
-  "name": "bookmarker",
+  "name": "LightBookmark",
   "version": "0.0.1",
-  "description": "bookmarker: A light bookmark application.",
+  "description": "LightBookmark: A light bookmark application.",
   "dependencies": {
     "gulp": "^3.5.6",
     "gulp-sass": "^2.0.4",
