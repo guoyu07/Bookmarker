@@ -98,11 +98,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
 
 .controller('MainCtrl', function($scope, $stateParams, $ionicTabsDelegate,
   $rootScope, UserFavorite, UserProfile, UserEntry, UI) {
-  $scope.onSwipeLeft = function() {
-    var index = $ionicTabsDelegate.selectedIndex();
-    $ionicTabsDelegate.select((index + 1) % 3);
-  }
-
+  // $scope.onSwipeLeft = function() {
+  //   var index = $ionicTabsDelegate.selectedIndex();
+  //   $ionicTabsDelegate.select((index + 1) % 3);
+  // }
 
   $rootScope.loading = true;
 
@@ -207,6 +206,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   // }
 
   $scope.showOptions = function($event, entry) {
+    $event.preventDefault();
     $event.stopPropagation();
     $scope.deatailEntry = entry;
     // ActionSheet?

@@ -154,7 +154,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   }
 })
 
-.service('UserProfile', function(MappingObject, AuthService, User, Setting, $rootScope) {
+.service('UserProfile', function(MappingObject, AuthService, User, Setting, $q, $rootScope) {
   var displayMapping = MappingObject({
     "Detail": "详细",
     "Medium": "默认",
@@ -173,17 +173,8 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   }
 
   return {
-    updateProfile: function() {
-      User.get({
-        id: userProfile.user_id
-      }, function(profile) {
-        $rootScope.user = profile;
-        localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
-      });
-    },
     initProfile: function() {
       userProfile = AuthService.decodeToken(AuthService.get());
-      this.updateProfile();
       localStorage.setItem('bookmarker.user.profile', JSON.stringify(userProfile));
     },
     removeProfile: function() {
@@ -208,9 +199,25 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       else return [3, "col-33"];
     },
     setting: function() {
-      return Setting.get({
-        id: userProfile.setting
-      }).$promise;
+      var deferred = $q.defer();
+
+      User.get({
+        id: userProfile.user_id
+      }, function(profile) {
+        userProfile = profile;
+        $rootScope.user = profile;
+        localStorage.setItem('bookmarker.user.profile', JSON.stringify(profile));
+        Setting.get({
+          id: profile.setting
+        }, function(setting) {
+          deferred.resolve(setting);
+        }, function(err) {
+          deferred.reject(err);
+        });
+      }, function() {
+        deferred.reject(err);
+      });
+      return deferred.promise;
     }
   }
 })
@@ -299,7 +306,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
       if (!$window.cordova) {
         return;
       }
-      var url = '/version.json';
+      var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/package/version.json';
       $http.get(url).success(function(res) {
         var serveAppVersion = res.version;
         if ($cordovaAppVersion === undefined) {
@@ -316,7 +323,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
         });
       }).error(function(response) {
         console.log(response);
-      })
+      });
     }
   };
   var showUpdateConfirm = function(data) {
@@ -332,7 +339,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
           template: "已经下载：0%"
         });
 
-        var url = 'https://example.com/Lightbm.apk';
+        var url = 'http://ivwsyygyfnhv-lbm.daoapp.io/package/Lightbm.apk';
         var targetPath = '/sdcard/Download/Lightbm.apk';
         var trustHosts = true;
         var options = {};

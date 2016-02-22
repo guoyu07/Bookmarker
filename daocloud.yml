@@ -16,5 +16,5 @@ before_script:
     - pip install -r requirements.txt
 
 script:
-    - coverage run --source='./bookmarker' manage.py test
+    - coverage run bookmarker/manage.py test
     - coverage report

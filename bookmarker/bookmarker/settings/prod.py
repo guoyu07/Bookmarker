@@ -4,6 +4,8 @@ from .base import *
 
 # ALLOWED_HOSTS = []
 
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

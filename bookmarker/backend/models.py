@@ -125,8 +125,8 @@ def user_post_save_handler(sender, instance, created, **kwargs):
     if created is True:
         instance.default_favor = Favorite.objects.create(created_by=instance)
         Entry.objects.create(
-            title='测试书签',
-            url='http://example.com/',
+            title='介绍',
+            url='http://ivwsyygyfnhv-lbm.daoapp.io',
             remark='这是一条测试书签',
             belong=instance.default_favor
         )
