@@ -1,9 +1,9 @@
 .pyc
+migrations/
+__pycache__/
+media/
+venv/
 .DS_Store
 
-media/
-
-migrations/
-venv/
-__pycache__/
 resources/
+desktop-dist/

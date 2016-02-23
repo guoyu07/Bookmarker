@@ -1,6 +1,12 @@
 {
   "name": "LightBookmark",
+  "productName": "LightBookmark",
   "version": "0.0.1",
+  "main": "desktop.js",
+  "scripts": {
+    "start": "electron desktop.js",
+    "build": "electron-packageer . $npm_package_productName --out=desktop-dist --platform=all --arch=x64 --ignore='(desktop-dist|node_modules|platforms|plugins|resources|scss|wp8|hooks|aws-credentials.json|.io-config.json)' --prune --asar --version=0.36.8 --app-version=$npm_package_version --icon='www/favicon.ico'"
+  },
   "description": "LightBookmark: A light bookmark application.",
   "dependencies": {
     "gulp": "^3.5.6",
@@ -12,7 +18,8 @@
   "devDependencies": {
     "bower": "^1.3.3",
     "gulp-util": "^2.2.14",
-    "shelljs": "^0.3.0"
+    "shelljs": "^0.3.0",
+    "electron-prebuilt": "^0.36.8"
   },
   "cordovaPlugins": [
     "cordova-plugin-device",
