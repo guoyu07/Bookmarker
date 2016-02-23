@@ -3,13 +3,13 @@
       <ion-item class="item" ng-click="openBrowser(deatailEntry.url, true)">
           在浏览器打开
       </ion-item>
-      <ion-item class="item" ng-show="!$root.fromBrowser" ng-click="copyEntryLink(deatailEntry.url)">
+      <ion-item class="item" ng-show="$root.isCordova" ng-click="copyEntryLink(deatailEntry.url)">
           复制链接
       </ion-item>
       <ion-item class="item" ng-click="editEntry(deatailEntry.id)">
           编辑
       </ion-item>
-      <ion-item class="item" ng-show="!$root.fromBrowser" ng-click="shareEntry(deatailEntry)">
+      <ion-item class="item" ng-show="$root.isCordova" ng-click="shareEntry(deatailEntry)">
           分享
       </ion-item>
       <ion-item class="item" ng-click="removeEntry(deatailEntry)">

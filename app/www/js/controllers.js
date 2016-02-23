@@ -163,7 +163,7 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   }];
 
   $scope.openBrowser = function(url, inSystem) {
-    if ($rootScope.fromBrowser) {
+    if (!$rootScope.isCordova) {
       window.open(url);
     } else {
       var target = '_blank';
@@ -261,11 +261,15 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   }
 
   $scope.submitEntry = function(entryForm) {
-    $scope.newEntry.tags = $scope.newEntry.tags.map(function(tag) {
-      return new Tag({
-        name: tag.name
+    if($scope.newEntry.tags) {
+      $scope.newEntry.tags = $scope.newEntry.tags.map(function(tag) {
+        return new Tag({
+          name: tag.name
+        });
       });
-    });
+    } else {
+      $scope.newEntry.tags = [];
+    }
     var isValid = entryForm.$valid;
     if (isValid) {
       if ($scope.createMode == true)

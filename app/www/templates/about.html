@@ -1,7 +1,10 @@
 <ion-view view-title="关于">
   <ion-content>
     <div class="list card">
-      <ion-item ng-show="!fromBrowser" ng-click="checkUpdate()">
+      <ion-item>
+        LightBookrmark
+      </ion-item>
+      <ion-item ng-show="$root.isCordova" ng-click="checkUpdate()">
         检查更新
       </ion-item>
       <!-- <ion-item>
