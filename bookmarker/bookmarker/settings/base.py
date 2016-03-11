@@ -124,18 +124,23 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
+WEB_URL = '/web/'
+
+WEB_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'app', 'www')
 
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static')
 
-# STATICFILES_DIRS = [
-#     os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static'),
-# ]
+STATICFILES_DIRS = [
+    # os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static'),
+    WEB_ROOT
+]
 
 MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'media')
 
 MEDIA_URL = '/media/'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -153,6 +158,7 @@ TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
     'DIRS': [
         # insert your TEMPLATE_DIRS here
+        WEB_ROOT
     ],
     'APP_DIRS': True,
     'OPTIONS': {

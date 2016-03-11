@@ -29,9 +29,9 @@ router.register(r'entries', views.EntryViewSet)
 router.register(r'favorites', views.FavoriteViewSet)
 router.register(r'settings', views.SettingViewSet)
 
-
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^web/$', TemplateView.as_view(template_name=settings.WEB_ROOT+'/index.html')),
     url(r'^sign-up/', views.sign_up),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
@@ -39,4 +39,5 @@ urlpatterns = [
     url(r'^api-token-auth/', 'rest_framework_jwt.views.obtain_jwt_token'),
     url(r'^api-token-refresh/', 'rest_framework_jwt.views.refresh_jwt_token'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT
+) + static(settings.WEB_URL, document_root=settings.WEB_ROOT)
