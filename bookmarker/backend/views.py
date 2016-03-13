@@ -41,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             user.set_password(serializer.data['password'])
             user.save()
-            return Response(make_status(True))
+            return Response(make_status(True), status=status.HTTP_200_OK)
         else:
             return Response(make_status(False, reason='格式错误'),
                             status=status.HTTP_400_BAD_REQUEST)

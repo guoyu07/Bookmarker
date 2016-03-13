@@ -32,7 +32,7 @@ router.register(r'settings', views.SettingViewSet)
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
     url(r'^web/$', TemplateView.as_view(template_name=settings.WEB_ROOT+'/index.html')),
-    url(r'^sign-up/', views.sign_up),
+    url(r'^sign-up/', views.sign_up, name="sign-up"),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include(router.urls)),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

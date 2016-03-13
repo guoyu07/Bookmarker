@@ -16,5 +16,6 @@ before_script:
     - pip install -r requirements.txt
 
 script:
-    - coverage run bookmarker/manage.py test
+    - cd bookmarker
+    - coverage run --source=backend --omit=*/migrations/* ./manage.py test
     - coverage report

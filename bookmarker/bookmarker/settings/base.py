@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'backend',
     'rest_framework',
     'corsheaders',
+    'django_nose'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -56,6 +57,7 @@ MIDDLEWARE_CLASSES = [
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 ROOT_URLCONF = 'bookmarker.urls'
 
