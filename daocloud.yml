@@ -7,7 +7,7 @@ env:
     - DAO_TEST = "True"
     - MYSQL_INSTANCE_NAME = "django"
     - MYSQL_USERNAME = "root"
-    - MYSQL_PASSWORD = "mysql"
+    - MYSQL_PASSWORD = ""
 
 install:
     - pip install coverage
