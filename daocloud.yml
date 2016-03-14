@@ -5,7 +5,7 @@ services:
 
 env:
     - DAO_TEST = "True"
-    - MYSQL_INSTANCE_NAME = "django"
+    - MYSQL_INSTANCE_NAME = "test"
     - MYSQL_USERNAME = "root"
     - MYSQL_PASSWORD = ""
 
