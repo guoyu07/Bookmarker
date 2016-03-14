@@ -24,12 +24,9 @@
               <img ng-src="bookmark.png">
               <h2>{{entry.title}}</h2>
               <p>{{entry.remark}}</p>
-              <ion-option-button class="button-calm" clip-copy="entry.url" clip-click="copyEntryLink(entry.url)">
+              <ion-option-button class="button-calm" clip-copy="entry.url" ng-click="copyEntryLink(entry.url)">
                 复制
               </ion-option-button>
-              <!-- <ion-option-button class="button-calm" ng-click="editEntry(entry.id)">
-                编辑
-              </ion-option-button> -->
               <ion-option-button class="button-assertive" ng-click="removeEntry(entry)">
                 删除
               </ion-option-button>

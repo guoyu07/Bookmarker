@@ -166,10 +166,6 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput', 'ngCl
     name: "低"
   }];
 
-  $scope.showMessage = function(){
-    alert('gettexttocopy');
-  }
-
   $scope.openBrowser = function(url, inSystem) {
     if (!$rootScope.isCordova) {
       window.open(url);
@@ -268,8 +264,9 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput', 'ngCl
         UI.toast('复制失败', 'short');
       });
     } else {
-      $ionicListDelegate.closeOptionButtons();
+      alert('已复制到黏贴版');
     }
+    $ionicListDelegate.closeOptionButtons();
   }
 
   $scope.submitEntry = function(entryForm) {
