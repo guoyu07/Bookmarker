@@ -80,9 +80,11 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   };
 }])
 
-.constant('API_HOST', 'http://ivwsyygyfnhv-lbm.daoapp.io')
+// .constant('API_HOST', 'http://ivwsyygyfnhv-lbm.daoapp.io')
+.constant('API_HOST', 'http://192.168.33.10')
 
-.constant('API_URL', 'http://ivwsyygyfnhv-lbm.daoapp.io/api')
+// .constant('API_URL', 'http://ivwsyygyfnhv-lbm.daoapp.io/api')
+.constant('API_URL', 'http://192.168.33.10/api')
 
 .config(function($resourceProvider) {
   $resourceProvider.defaults.stripTrailingSlashes = false;
@@ -115,7 +117,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova', 'bookmarker.c
   return new MappingObject(obj);
 })
 
-.service('ClipboardService', function($window, $q, $cordovaClipboard) {
+.service('ClipboardService', function($window, $rootScope, $q, $cordovaClipboard) {
   return {
     copy: function(text) {
       return $cordovaClipboard.copy(text);

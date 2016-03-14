@@ -1,4 +1,8 @@
-angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
+angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput', 'ngClipboard'])
+
+.config(['ngClipProvider', function(ngClipProvider) {
+  ngClipProvider.setPath("lib/zeroclipboard/dist/ZeroClipboard.swf");
+}])
 
 .filter('favicon', function() {
   return function(url) {
@@ -162,6 +166,10 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
     name: "低"
   }];
 
+  $scope.showMessage = function(){
+    alert('gettexttocopy');
+  }
+
   $scope.openBrowser = function(url, inSystem) {
     if (!$rootScope.isCordova) {
       window.open(url);
@@ -252,12 +260,16 @@ angular.module('bookmarker.controllers', ['bookmarker.api', 'ngTagsInput'])
   }
 
   $scope.copyEntryLink = function(url) {
-    ClipboardService.copy(url).then(function(){
-      $scope.popover.hide();
-      UI.toast('复制成功', 'short');
-    }, function(){
-      UI.toast('复制失败', 'short');
-    });
+    if ($rootScope.isCordova) {
+      ClipboardService.copy(url).then(function(){
+        $scope.popover.hide();
+        UI.toast('复制成功', 'short');
+      }, function(){
+        UI.toast('复制失败', 'short');
+      });
+    } else {
+      $ionicListDelegate.closeOptionButtons();
+    }
   }
 
   $scope.submitEntry = function(entryForm) {
