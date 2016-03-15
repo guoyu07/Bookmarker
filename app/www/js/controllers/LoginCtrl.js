@@ -57,18 +57,7 @@ angular.module('bookmarker.login.controller', ['bookmarker.api'])
         $scope.registerErrMsgs = response;
       });
 
-      // var user = new User({
-      //   username: $scope.register.username,
-      //   password: $scope.register.password,
-      //   email: $scope.register.email
-      // });
-      // user.$save(function(user, putResponseHeaders) {
-      //   $scope.doLogin($scope.register.username, $scope.register.password, false);
-      //   $scope.modal.hide();
-      // }, function(response) {
-      //   $scope.registerErrMsgs = response.data;
-      // });
-      //
+
     }
   }
 

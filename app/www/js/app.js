@@ -34,7 +34,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova',
     if (AuthService.isTokenExpired()) {
       $state.go('app.login');
     } else {
-
+      
     }
   });
 
@@ -43,10 +43,10 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova',
 
 })
 
-.constant('API_HOST', 'http://ivwsyygyfnhv-lbm.daoapp.io')
+.constant('API_HOST', 'http://lbm.daoapp.io')
 // .constant('API_HOST', 'http://192.168.33.10')
 
-.constant('API_URL', 'http://ivwsyygyfnhv-lbm.daoapp.io/api')
+.constant('API_URL', 'http://lbm.daoapp.io/api')
 // .constant('API_URL', 'http://192.168.33.10/api')
 
 .config(function($resourceProvider) {
