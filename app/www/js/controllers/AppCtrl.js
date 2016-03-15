@@ -4,7 +4,11 @@ angular.module('bookmarker.app.controller', [])
   $rootScope.user = UserProfile.getProfile();
   $rootScope.$on('userLogging', function(e, d) {
     $rootScope.user = UserProfile.getProfile();
-    window.location = '/';
+    if($rootScope.isBrowser) {
+      window.location = '/web';
+    } else {
+      window.location = '/';
+    }
     // $state.go('app.main.bookmarks');
   });
 
