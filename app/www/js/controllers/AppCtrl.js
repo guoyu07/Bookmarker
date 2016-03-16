@@ -7,7 +7,8 @@ angular.module('bookmarker.app.controller', [])
     if($rootScope.isBrowser) {
       window.location = '/web';
     } else {
-      window.location.href = window.location.href;
+      // tbd on phone
+      $state.go('app.main', {}, {reload: true});
     }
   });
 
