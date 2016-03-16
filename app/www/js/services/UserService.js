@@ -12,6 +12,15 @@ angular.module('bookmarker.user.service', [])
     "Narrow": "窄"
   });
 
+  function initProfile() {
+    var token = AuthService.get();
+    if (token != undefined) {
+      userProfile = AuthService.decodeToken(token);
+      localStorage.setItem('bookmarker.user.profile', JSON.stringify(userProfile));
+    }
+  }
+
+  initProfile();
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
 
   if (userProfile != null) {
@@ -19,18 +28,13 @@ angular.module('bookmarker.user.service', [])
   }
 
   return {
-    initProfile: function() {
-      userProfile = AuthService.decodeToken(AuthService.get());
-      localStorage.setItem('bookmarker.user.profile', JSON.stringify(userProfile));
-    },
+    initProfile: initProfile,
     removeProfile: function() {
       localStorage.removeItem('bookmarker.user.profile');
     },
     getProfile: function() {
       if (!AuthService.isLoggedIn())
-        return {
-          'username': '未登录'
-        };
+        return undefined;
       return userProfile;
     },
     getLayoutStyle: function(layoutStyle) {
@@ -46,7 +50,6 @@ angular.module('bookmarker.user.service', [])
     },
     setting: function() {
       var deferred = $q.defer();
-      this.initProfile();
 
       User.get({
         id: userProfile.user_id

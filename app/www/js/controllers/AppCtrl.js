@@ -4,12 +4,9 @@ angular.module('bookmarker.app.controller', [])
   $rootScope.user = UserProfile.getProfile();
   $rootScope.$on('userLogging', function(e, d) {
     $rootScope.user = UserProfile.getProfile();
-    if($rootScope.isBrowser) {
-      window.location = '/web';
-    } else {
-      // tbd on phone
-      $state.go('app.main', {}, {reload: true});
-    }
+    // reload data
+    location.reload();
+    $state.go('app.main.bookmarks');
   });
 
 });
