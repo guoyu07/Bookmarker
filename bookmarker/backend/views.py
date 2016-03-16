@@ -1,20 +1,49 @@
 from django.db.models import Q
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from .models import User, Entry, Favorite, Setting, Tag
 from .utils import make_status
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import detail_route, list_route, permission_classes, api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework_jwt.views import obtain_jwt_token
+
 from .serializers import (EntrySerializer, FavoriteSerializer, PasswordSerializer,
     SettingSerializer, TagSerializer, UserSerializer)
 
 from .permissions import (SafeMethodsOnlyPermission, IsAdminOrIsSelf, EntryOwnerCanEditPermission,
  UserOwnerCanEditPermission, SettingOwnerCanEditPermission, FavoriteOwnerCanEditPermission, CanViewPermisson)
 
+from .models import User
+from random import randint
 from urllib.request import urlopen
+import json
 import re
 
 TITLE_PATTERN = re.compile(b'<title>(.*)</title>')
+
+@csrf_exempt
+def qq_login(request):
+    access_token = request.POST['access_token']
+    if access_token:
+        url = 'https://graph.qq.com/oauth2.0/me?access_token=%s' % access_token
+        callback_page = urlopen(url).read().decode()
+        id_content = callback_page[callback_page.find('{'):callback_page.rfind('}')+1]
+        id_dict = json.loads(id_content)
+        open_id = id_dict['openid']
+        res_url = ("https://graph.qq.com/user/get_user_info?access_token=%s&oauth_consumer_key=%s&openid=%s"
+            %(access_token, '101296341', open_id))
+        qq_res = json.loads(urlopen(res_url).read().decode())
+        # for test
+        username = str(open_id)[0:25]
+        password = str(open_id)[26:]
+        if not User.objects.filter(username=username).exists():
+            user = User(username=username)
+            user.set_password(password)
+            user.save()
+        return JsonResponse({'username': username ,'password': password})
+    return Response(make_status(False), status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes((AllowAny, ))

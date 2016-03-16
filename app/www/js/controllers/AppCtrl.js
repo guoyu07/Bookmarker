@@ -7,9 +7,8 @@ angular.module('bookmarker.app.controller', [])
     if($rootScope.isBrowser) {
       window.location = '/web';
     } else {
-      window.location = '/';
+      window.location.href = window.location.href;
     }
-    // $state.go('app.main.bookmarks');
   });
 
 });

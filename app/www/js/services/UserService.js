@@ -46,6 +46,7 @@ angular.module('bookmarker.user.service', [])
     },
     setting: function() {
       var deferred = $q.defer();
+      this.initProfile();
 
       User.get({
         id: userProfile.user_id

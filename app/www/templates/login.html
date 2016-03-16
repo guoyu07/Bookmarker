@@ -20,5 +20,12 @@
         <a ng-click="openRegister()" class="button button-calm button-clear button-block ">点击注册一个新用户</a>
       </div>
     </form>
+
+  <p style="max-width:250px; margin:auto;">
+    <a class="button-block" ng-show="$root.isBrowser"
+href="https://graph.qq.com/oauth2.0/authorize?response_type=token&client_id=101296341&redirect_uri=http://lbm.daoapp.io&scope=get_user_info">
+      <img src="http://7xq6ov.com1.z0.glb.clouddn.com/qq_login.png">
+    </a>
+    </p>
   </ion-content>
 </ion-view>

@@ -195,6 +195,45 @@
       margin: 5px;
     }
   </style>
+  <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+  <script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        url = url.toLowerCase();
+        name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();
+        var regex = new RegExp("[?#&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    window.onload = function() {
+      var access_token = getParameterByName("access_token");
+      var expires_in = getParameterByName("expires_in");
+      if (access_token && expires_in) {
+        $.ajax({
+          url: "/qq-login/",
+          type: "POST",
+          data: {
+            access_token: access_token
+          }
+        }).success(function(resp){
+          $.ajax({
+            url: "/api-token-auth/",
+            type: "POST",
+            data: {
+              username: resp.username,
+              password: resp.password,
+            },
+          }).success(function(resp){
+            localStorage["bookmarker.token"] = resp.token;
+            window.location.href = "/web/";
+          });
+        });
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -240,6 +279,7 @@
     </div>
 
   </div>
+
 </body>
 
 </html>

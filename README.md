@@ -4,7 +4,7 @@
 
 一个轻便的Hybrid书签应用，使用AngularJS+ionic+cordova+electron开发。
 
-[演示地址](http://ivwsyygyfnhv-lbm.daoapp.io/)
+[演示地址](http://lbm.daoapp.io/)
 
 ![mobile](http://7xq6ov.com1.z0.glb.clouddn.com/2026984FCF4E2C15113013555787542C.jpg)
 

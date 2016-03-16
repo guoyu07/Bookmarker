@@ -34,7 +34,7 @@ angular.module('bookmarker', ['ionic', 'angular-jwt', 'ngCordova',
     if (AuthService.isTokenExpired()) {
       $state.go('app.login');
     } else {
-      
+
     }
   });
 
