@@ -15,43 +15,28 @@
 
   <!-- Bootstrap core CSS -->
   <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://cdn.bootcss.com/fullPage.js/2.7.8/jquery.fullPage.min.css" rel="stylesheet">
 
-  <!-- Custom styles for this template -->
-  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
   <style>
-    /*
-     * Globals
-     */
-    /* Links */
-
     a,
     a:focus,
     a:hover {
       color: #fff;
     }
-    /* Custom default button */
 
     .btn-default,
     .btn-default:hover,
     .btn-default:focus {
       color: #333;
       text-shadow: none;
-      /* Prevent inheritence from `body` */
       background-color: #fff;
       border: 1px solid #fff;
     }
-    /*
-     * Base structure
-     */
 
     html,
     body {
       height: 100%;
-      background-color: #333;
+      background-color: transparent;
     }
 
     body {
@@ -59,7 +44,6 @@
       text-align: center;
       text-shadow: 0 1px 3px rgba(0, 0, 0, .5);
     }
-    /* Extra markup and styles for table-esque vertical and horizontal centering */
 
     .site-wrapper {
       display: table;
@@ -85,9 +69,6 @@
     .inner {
       padding: 30px;
     }
-    /*
-     * Header
-     */
 
     .masthead-brand {
       margin-top: 10px;
@@ -135,9 +116,6 @@
         float: right;
       }
     }
-    /*
-     * Cover
-     */
 
     .cover {
       padding: 0 20px;
@@ -147,18 +125,12 @@
       padding: 10px 20px;
       font-weight: bold;
     }
-    /*
-     * Footer
-     */
 
     .mastfoot {
       color: #999;
       /* IE8 proofing */
       color: rgba(255, 255, 255, .5);
     }
-    /*
-     * Affix and center
-     */
 
     @media (min-width: 768px) {
       /* Pull out the header and footer */
@@ -167,7 +139,7 @@
         top: 0;
       }
       .mastfoot {
-        position: fixed;
+        position: absolute;
         bottom: 0;
       }
       /* Start the vertical centering */
@@ -179,7 +151,6 @@
       .mastfoot,
       .cover-container {
         width: 100%;
-        /* Must be percentage or pixels for horizontal alignment */
       }
     }
 
@@ -191,21 +162,35 @@
       }
     }
 
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgb(17, 193, 243);
+      background-image: url("");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: 50% 50%;
+      z-index: -1;
+    }
+
     .btn {
       margin: 5px;
     }
   </style>
   <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+  <script src="http://cdn.bootcss.com/particles.js/2.0.0/particles.min.js"></script>
+  <script src="http://cdn.bootcss.com/fullPage.js/2.7.8/jquery.fullPage.min.js"></script>
   <script>
     function getParameterByName(name, url) {
-        if (!url) url = window.location.href;
-        url = url.toLowerCase();
-        name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();
-        var regex = new RegExp("[?#&]" + name + "(=([^&#]*)|&|#|$)"),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
+      if (!url) url = window.location.href;
+      url = url.toLowerCase();
+      name = name.replace(/[\[\]]/g, "\\$&").toLowerCase();
+      var regex = new RegExp("[?#&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
     window.onload = function() {
@@ -218,7 +203,7 @@
           data: {
             access_token: access_token
           }
-        }).success(function(resp){
+        }).success(function(resp) {
           $.ajax({
             url: "/api-token-auth/",
             type: "POST",
@@ -226,60 +211,92 @@
               username: resp.username,
               password: resp.password,
             },
-          }).success(function(resp){
+          }).success(function(resp) {
             localStorage["bookmarker.token"] = resp.token;
             window.location.href = "/web/";
           });
         });
       }
     }
+
+    particlesJS.load("particles-js", "/web/assets/particles.json", function() {
+      console.log('callback - particles.js config loaded');
+    });
+
+    $(document).ready(function() {
+      $("#fullpage").fullpage();
+      $(".moveDown").on("click", function() {
+        $.fn.fullpage.moveSectionDown();
+      });
+    });
   </script>
 </head>
 
 <body>
+  <div id="particles-js"></div>
 
-  <div class="site-wrapper">
-
-    <div class="site-wrapper-inner">
-
-      <div class="cover-container">
-
-        <div class="masthead clearfix">
-          <div class="inner">
-            <h3 class="masthead-brand">LightBookmark</h3>
-            <nav>
-              <ul class="nav masthead-nav">
-                <li class="active"><a href="#">主页</a></li>
-                <li><a href="/web/">web版</a></li>
-              </ul>
-            </nav>
+  <div id="fullpage">
+    <div class="section">
+      <div class="site-wrapper">
+        <div class="site-wrapper-inner">
+          <div class="cover-container">
+            <div class="masthead clearfix">
+              <div class="inner">
+                <h3 class="masthead-brand">LightBookmark</h3>
+                <nav>
+                  <ul class="nav masthead-nav">
+                    <li class="active"><a href="#">主页</a></li>
+                    <li><a href="/web/">web版</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+            <div class="inner cover">
+              <h1 class="cover-heading">一个简便的书签应用</h1>
+              <p class="lead">tbd...</p>
+              <p class="lead">
+                <a href="http://fir.im/lbmios" class="btn btn-lg btn-info">ios版下载</a>
+                <a href="http://fir.im/lbm" class="btn btn-lg btn-success">Android版下载</a>
+                <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-warning">Mac版下载</a>
+                <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-primary">PC版下载</a>
+                <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-danger">Linux版下载</a>
+              </p>
+            </div>
+            <div class="mastfoot">
+              <div class="inner">
+                <a href="#" class="moveDown">
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="inner cover">
-          <h1 class="cover-heading">一个简便的书签应用</h1>
-          <p class="lead">tbd...</p>
-          <p class="lead">
-            <a href="http://fir.im/lbmios" class="btn btn-lg btn-info">ios版下载</a>
-            <a href="http://fir.im/lbm" class="btn btn-lg btn-success">Android版下载</a>
-            <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-warning">Mac版下载</a>
-            <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-primary">PC版下载</a>
-            <a href="http://pan.baidu.com/s/1dEdYn5n" class="btn btn-lg btn-danger">Linux版下载</a>
-          </p>
-        </div>
-
-        <div class="mastfoot">
-          <div class="inner">
-            <p>Powered by <a>daocloud.io</a></p>
-          </div>
-        </div>
-
       </div>
-
     </div>
-
+    <div class="section">
+      <div class="site-wrapper">
+        <div class="site-wrapper-inner">
+          <div class="cover-container">
+            <div class="mastfoot">
+              <div class="inner">
+                <a href="#" class="moveDown">
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="site-wrapper">
+        <div class="site-wrapper-inner">
+          <div class="cover-container">
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
 </body>
 
 </html>

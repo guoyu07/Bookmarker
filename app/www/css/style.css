@@ -1,5 +1,7 @@
 /* Empty. Add your own CSS if you like */
-
+body {
+  font-family: "Georgia", "Xin Gothic", "Hiragino Sans GB", "Droid Sans Fallback", "Microsoft YaHei", sans-serif;
+}
 .bookmark {
   margin: 10px 10px;
 }
@@ -13,6 +15,10 @@
     top: 5%;
     height: 70%;
   }
+}
+.item-content {
+  padding-top: 25px !important;
+  padding-bottom: 25px !important;
 }
 .has-errors {
   border-bottom: 3px solid #B83E2C;

@@ -20,7 +20,6 @@ angular.module('bookmarker.user.service', [])
     }
   }
 
-  initProfile();
   var userProfile = JSON.parse(localStorage.getItem('bookmarker.user.profile'));
 
   if (userProfile != null) {
@@ -33,6 +32,7 @@ angular.module('bookmarker.user.service', [])
       localStorage.removeItem('bookmarker.user.profile');
     },
     getProfile: function() {
+      initProfile();
       if (!AuthService.isLoggedIn())
         return undefined;
       return userProfile;
